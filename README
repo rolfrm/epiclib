@@ -1,0 +1,12 @@
+-- Readme for Epiclib -- 
+
+
+
+Todo (short term):
+Make dbsystem / serializable code
+Make unified physics and graphics space
+Make dll-system so that the epiclib folder can be included in PATH and we dont need to copy paste it everytime we use it.
+
+Todo (Longer term):
+Make game editor that is extendable and simple.
+Add audio processing
