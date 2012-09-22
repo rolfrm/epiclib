@@ -5,10 +5,13 @@
  *      Author: sebastian
  */
 
+
+#include <GL/glew.h>
 #include "GraphicsCore.hpp"
 #include <math.h>
 #include <IL/il.h>
-
+#include <GL/gl.h>
+#include <GL/glfw.h>
 
 GLuint Width,Height;
 GLfloat framerate,inv_framerate;
@@ -21,6 +24,8 @@ GLuint getWidth(){
 GLuint getHeight(){
 	return Height;
 }
+
+
 
 void initOpenGL(GLuint n_width,GLuint n_height,GLfloat n_framerate){
 	Width=n_width;
@@ -52,11 +57,7 @@ void setFramerate(GLfloat n_framerate){
 
 GLint UpdateGraphics(){
 	glfwSwapBuffers();
-
-	glClearColor(1.0,1.0,1.0,1.0);
-
 	glBindFramebuffer(GL_FRAMEBUFFER,0);
-
 	glClear( GL_COLOR_BUFFER_BIT);
 	glClear(GL_STENCIL_BUFFER_BIT);
 

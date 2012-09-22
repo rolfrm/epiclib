@@ -5,8 +5,9 @@
  *      Author: sebastian
  */
 
+#include <GL/glew.h>
 #include "VertexBufferObject.hpp"
-
+#include <GL/gl.h>
 
 VertexBufferObject::VertexBufferObject(GLfloat * data,GLuint vertex_count,GLuint vertex_dimension,GLenum buffer_param){
 	glGenBuffers(1,&reference);

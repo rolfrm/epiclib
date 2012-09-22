@@ -68,5 +68,8 @@ extern EventSpawner<MouseClick> mouse_click_handler;
 extern EventSpawner<mouse_position> mouse_move_spawner;
 extern EventSpawner<CharEvent> char_event_spawner;
 extern EventSpawner<MouseWheelEvent> mouse_wheel_event_spawner;
+
+extern "C"{
 mouse_position get_mouse_position();
 void init_events();
+}

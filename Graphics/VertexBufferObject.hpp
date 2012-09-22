@@ -7,11 +7,7 @@
 
 #ifndef VERTEXBUFFEROBJECT_HPP_
 #define VERTEXBUFFEROBJECT_HPP_
-
-#include <GL/glew.h>
-#include <GL/gl.h>
-
-
+#include<GL/gl.h>
 class VertexBufferObject{
 public:
 	VertexBufferObject(GLfloat * data,GLuint vertex_count,GLuint vertex_dimension,GLenum buffer_param=GL_STATIC_DRAW);

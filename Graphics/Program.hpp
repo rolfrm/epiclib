@@ -8,7 +8,6 @@
 #ifndef PROGRAM_HPP_
 #define PROGRAM_HPP_
 
-#include <GL/glew.h>
 #include <GL/gl.h>
 #include <string>
 
@@ -17,8 +16,11 @@ class Shader{
 public:
 	Shader(const char * shader_str,GLenum type);
 	Shader(const Shader & original);
+  Shader(int reference, GLenum type);
+  
 	~Shader();
-
+  static Shader FromString(const char * shaderAsString,GLenum type);
+  static Shader FromFile(const char * shaderPath, GLenum type);
 	GLuint * count,reference;
 	GLenum type;
 };
@@ -53,10 +55,9 @@ public:
 	void setUniformMat3x3(const char * name,float * mat);
 	void setUniformMat4x4(const char * name,float * mat);
 
-	void BindAttribute(std::string name,GLuint location){glBindAttribLocation(reference,location,name.c_str());};
-	void Link(){glLinkProgram(reference);};
+  void BindAttribute(std::string name,GLuint location);
 	void UseProgram();
-
+  void Link();
 	GLuint * count,reference;
 };
 

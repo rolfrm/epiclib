@@ -5,12 +5,56 @@
  *      Author: sebastian
  */
 
+#include <GL/glew.h>
 
 #include "Program.hpp"
 #include <iostream>
 #include <fstream>
 #include <sstream>
 
+
+
+Shader Shader::FromString(const char * shaderAsString,GLenum type){
+
+  	int reference = glCreateShader(type);
+	const char * s =shaderAsString;
+	glShaderSource(reference,1,&s,NULL);
+	glCompileShader(reference);
+
+
+	GLint status;
+	glGetShaderiv(reference, GL_COMPILE_STATUS, &status);
+	if (status == GL_FALSE){
+		GLint infoLogLength;
+		glGetShaderiv(reference, GL_INFO_LOG_LENGTH, &infoLogLength);
+		GLchar *strInfoLog = new GLchar[infoLogLength + 1];
+		glGetShaderInfoLog(reference, infoLogLength, NULL, strInfoLog);
+
+		const char *strShaderType = NULL;
+	    switch(type){
+	        case GL_VERTEX_SHADER: strShaderType = "vertex"; break;
+	        case GL_GEOMETRY_SHADER: strShaderType = "geometry"; break;
+	        case GL_FRAGMENT_SHADER: strShaderType = "fragment"; break;
+	    }
+	    fprintf(stderr, "Compile failure in %s shader:\n%s\n", strShaderType, strInfoLog);
+	    delete[] strInfoLog;
+	}
+	return Shader(reference, type);
+	
+}
+Shader Shader::FromFile(const char * shaderPath, GLenum type){
+	std::ifstream is (shaderPath,std::ios::in);
+	std::stringstream buffer;
+	buffer<<is.rdbuf();
+	std::string shaderstring=buffer.str();
+	return FromString(shaderstring.c_str(),type);
+}
+
+Shader::Shader(int reference, GLenum type){
+  this->reference = reference;
+  this->type = type;
+  count = new GLuint(1);
+}
 
 Shader::Shader(const char * shader_path,GLenum type){
 	std::ifstream is (shader_path,std::ios::in);
@@ -201,5 +245,11 @@ GLint Program::getCurrentProgram(){
 	glGetIntegerv(GL_CURRENT_PROGRAM,&current_program);
 	return current_program;
 }
+void Program::BindAttribute(std::string name,GLuint location)
+{
+  glBindAttribLocation(reference,location,name.c_str());
+};
 
+void Program::Link(){glLinkProgram(reference);};
+	
 

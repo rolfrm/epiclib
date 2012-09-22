@@ -90,8 +90,8 @@ def CompileSharedLibrary(exname, src_dir,obj_dir,filelist, libraries, dbg, opt, 
                 pycache[i] = os.path.getmtime(object_path)
                 save_cache(pycache)
             except:
-                print "Error during compiling.. quitting"
-                quit()
+                raise "Error during compiling.. quitting"
+                
         
     
                 
@@ -112,7 +112,7 @@ def CompileSharedLibrary(exname, src_dir,obj_dir,filelist, libraries, dbg, opt, 
     do_call(link_call)
 
 
-def Compile(exname, src_dir,obj_dir,filelist, libraries, dbg, opt, cppv=CPPOX, libpath=[], incpath=[]):
+def Compile(exname, src_dir,obj_dir,filelist, libraries, dbg, opt, cppv=CPPOX, libpath=[], incpath=[], linkargs=[]):
     cachename = exname + ".cache"	
 
     def bind_symbols(symbollist,symhandle):
@@ -191,8 +191,8 @@ def Compile(exname, src_dir,obj_dir,filelist, libraries, dbg, opt, cppv=CPPOX, l
                 pycache[i] = os.path.getmtime(object_path)
                 save_cache(pycache)
             except:
-                print "Error during compiling.. quitting"
-                quit()
+                raise "Error during compiling.. quitting"
+                
         
     
                 
@@ -203,6 +203,9 @@ def Compile(exname, src_dir,obj_dir,filelist, libraries, dbg, opt, cppv=CPPOX, l
     for i in object_files:
         if(i != ""):
             link_args += i + " "
+    
+    for i in linkargs:
+        link_args += i + " "
             
     link_args = link_args[:-1]
 
@@ -211,8 +214,6 @@ def Compile(exname, src_dir,obj_dir,filelist, libraries, dbg, opt, cppv=CPPOX, l
     link_call = "g++ {0} -O{1} -g{2} {4} -std=c++0x -o {3}".format(link_args,opt,dbg,exname,link_inc)
     print link_call
     do_call(link_call)
-def test():
-    Compile("start","src","obj",["c++0xtest/var_temp.cpp"],[],3,0,3,0)
 
 if __name__ == "__main__":
     test()

@@ -40,7 +40,7 @@ void GLFWCALL charcallback( int character, int action ){
 }
 bool block_window_sizing = true;
 void GLFWCALL window_size_callback(int width,int height){
-  if(block_window_sizing){
+  /*  if(block_window_sizing){
     if(width == window_width && height == window_height){
       return;
     }else{
@@ -49,7 +49,7 @@ void GLFWCALL window_size_callback(int width,int height){
   }else{
     window_width = width;
     window_height = height;
-  }
+    }*/
 }
 mouse_position global_mpos;
 
@@ -59,7 +59,7 @@ void GLFWCALL mouse_move_callback(int x, int y){
   mouse_move_spawner.spawn_event(global_mpos);
 }
 
-
+extern "C"{
 void init_events()
 {
   last_wheel_pos = glfwGetMouseWheel();
@@ -74,4 +74,5 @@ void init_events()
 
 mouse_position get_mouse_position(){
   return global_mpos;
+}
 }
