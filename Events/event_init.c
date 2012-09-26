@@ -14,15 +14,18 @@ EventSpawner<MouseClick> mouse_click_handler;
 EventSpawner<mouse_position> mouse_move_spawner;
 EventSpawner<CharEvent> char_event_spawner;
 EventSpawner<MouseWheelEvent> mouse_wheel_event_spawner;
+EventSpawner<size> window_resize_event;
 
 void GLFWCALL mousebuttoncallback(int button, int action){
   MouseClick mEv(button,action);
   mouse_click_handler.spawn_event(mEv);
 
 }
-
+#include <iostream>
 int last_wheel_pos = 0;
 void GLFWCALL mouse_wheel_callback(int mwpos){
+  //std::cout << mwpos << "\n";
+  
   MouseWheelEvent mEv(mwpos, mwpos - last_wheel_pos);
   last_wheel_pos = mwpos;
   mouse_wheel_event_spawner.spawn_event(mEv);
@@ -34,26 +37,18 @@ void GLFWCALL keycallback( int key, int action ){
 }
 #include<iostream>
 void GLFWCALL charcallback( int character, int action ){
-  std::cout << character << " " << action << "\n";
+  //std::cout << character << " " << action << "\n";
   CharEvent newKeyEv(character,action==1);
   char_event_spawner.spawn_event(newKeyEv);
 }
 bool block_window_sizing = true;
 void GLFWCALL window_size_callback(int width,int height){
-  /*  if(block_window_sizing){
-    if(width == window_width && height == window_height){
-      return;
-    }else{
-      glfwSetWindowSize(window_width,window_height);
-    }
-  }else{
-    window_width = width;
-    window_height = height;
-    }*/
+  window_resize_event.spawn_event(size({width,height}));
 }
 mouse_position global_mpos;
 
 void GLFWCALL mouse_move_callback(int x, int y){
+  //std::cout << x << " " << y << "\n";
   global_mpos.x = x;
   global_mpos.y = y;
   mouse_move_spawner.spawn_event(global_mpos);

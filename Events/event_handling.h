@@ -19,7 +19,7 @@ public:
 };
 
 
-
+#include<iostream>
 template <class event_type>
 class EventSpawner{
 public:

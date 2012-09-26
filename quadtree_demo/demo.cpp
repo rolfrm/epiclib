@@ -62,14 +62,68 @@ public:
   }
 
 };
-
+#include<math.h>
 NaiveShader * naiveShader;
 
 void QuadTreeDemo();
-class Listener1:public EventListener<KeyEvent>, public EventListener<mouse_position>, public EventListener<MouseClick>{
 
-  bool HandleEvent(KeyEvent kev){
+class Listener1: public EventListener<KeyEvent>, public EventListener<mouse_position>, public EventListener<MouseClick>, public EventListener<MouseWheelEvent>,public EventListener<size>{
+public:
+  
+  double scale;
+  double x;
+  double y;
+  bool leftIsDown;
+  double lastX;
+  double lastY;
+  int viewport_width;
+  int viewport_height;
+  Listener1(int _viewport_width, int _viewport_height){
+    scale = 1.0;
+    x = 0;
+    y = 0;
+    leftIsDown;
+    viewport_width = _viewport_width;
+    viewport_height = _viewport_height;
+  }
 
+  bool handle_event(size s){
+    viewport_width = s.x;
+    viewport_height = s.y;
+    std::cout << "Window resize\n";
+    return true;
+  }
+  bool handle_event(KeyEvent kev){
+    return true;
+  }
+
+  bool handle_event(mouse_position mpos){
+    if(leftIsDown){
+    double nx = mpos.x;
+    double ny = mpos.y;
+    double dx = nx - lastX;
+    double dy = ny - lastY;
+    x -= dx*scale*0.01;
+    y += dy*scale*0.01;
+    lastX = nx;
+    lastY = ny;
+    }
+    return true;
+  }
+
+  bool handle_event(MouseClick mclick){
+    if(mclick.button == 0){
+      leftIsDown = mclick.pressed;
+      lastX = get_mouse_position().x;
+      lastY = get_mouse_position().y;
+    }
+    return true;
+  }
+  
+  bool handle_event(MouseWheelEvent mwheel){
+    scale /= powf(1.2,mwheel.change);
+    std::cout << scale << "\n";
+    return true;
   }
 };
 
@@ -77,10 +131,11 @@ class Drawable{
 public:
   
   double x, y, w, h;
+  double r,g,b;
   virtual void draw(){
     naiveShader->pos(x,y);
     naiveShader->scale(w,h);
-    naiveShader->color(1,0,1,1);
+    naiveShader->color(r,g,b,1);
     glDrawArrays(GL_QUADS,0,4);
   }
 };
@@ -106,7 +161,12 @@ rect Intersect(rect r1, rect r2){
   return rect({x.x,y.x,x.w,y.w});
 }
 
+class NodeExpander{
+
+};
+
 typedef Node<std::list<Drawable *>,2> DrawNode;
+typedef Node<int,2> IntNode;
 
 #include <math.h>
 #include <iostream>
@@ -130,34 +190,29 @@ public:
   
   DrawNode * GetNodeForRect(rect & a){
     DrawNode * relativeOrigin = origin;
-    std::cout << "start ";
-    ptRect(a);
-    while((a.w>a.h ? a.w : a.h) >= 1){
-      std::cout << "Zoom out.. "; ptRect(a);
+    while((a.w>a.h ? a.w : a.h) > 1){
       relativeOrigin = GoUp(a,relativeOrigin);
     }
-    int mx = a.x;
-    int my = a.y;
+    int mx = floor(a.x);
+    int my = floor(a.y);
     relativeOrigin = relativeOrigin->relative_node(vec2(mx,my),true);
+    //std::cout << a.x << " " << mx << "\n";
     a.x -= (double)mx;
     a.y -= (double)my;
-    std::cout << "move ";
-    ptRect(a);
     
-    while((a.h > a.w ? a.h : a.w) <= 0.5){
+    while((a.h > a.w ? a.h : a.w) < 0.5){
       a.h *= 2;
       a.w *= 2;
       a.x *= 2;
       a.y *= 2;
-      std::cout << "zoom in 1 :";
-      ptRect(a);
+      //std::cout << a.x << " " << a.y << "\n";
       relativeOrigin = relativeOrigin->get_child(vec2(a.x,a.y),true);
+      //std::cout << "Rel orign: " << relativeOrigin << "\n";
       int mx = relativeOrigin->idx & 1;
       int my = relativeOrigin->idx >>1;
       a.x -= mx;
       a.y -= my;
-      std::cout << "zoom in 2 :";
-      ptRect(a);
+      
     }
     return relativeOrigin;
   }
@@ -174,7 +229,6 @@ public:
   DrawNode * GoUp(rect & a, DrawNode * node){
     int x = node->idx & 1;
     int y = node->idx >> 1;
-    std::cout << x << " " << y << " " << node->idx <<"\n";
     a.w = a.w / 2.0;
     a.h = a.h / 2.0;
     a.x = (a.x +(double) x) / 2.0;
@@ -183,34 +237,26 @@ public:
   }
   void RenderFromOrigin(double x, double y, double w, double h){
     rect b = {x,y,w,h};
-    std::cout << "Start renfer from origin " << x << " " << y << " " << w << " " << h << "\n";
+    rect screen = {0,0,1,1};
     DrawNode * relativeOrigin = GetNodeForRect(b);
-    //test: render down
+    //relativeOrigin = GoUp(b,relativeOrigin);
+    //std::cout << "Camera: ";
+    //ptRect(b);
+    //std::cout << "\n";
     naiveShader->cameraPosition(b.x,b.y);
     naiveShader->cameraScale(b.w,b.h);
-    std::cout << "Render start.. " << relativeOrigin << "\n";
-
-    std::cout << relativeOrigin->parent << " ";
-    for(int i = 0; i < 4; i++){
-      std::cout << " " << relativeOrigin->children[i];
+    for(int i = -1;i<2;i++){
+      for(int j = -1;j<2;j++){
+	RenderDown(relativeOrigin->relative_node(vec2(i,j),true), {0,0,1,1},rect({-b.x+i,-b.y+j,b.w,b.h}));
+      }
     }
-    std::cout << "\n--";
-    ptRect(b);
-    std::cout << "\n";
-    RenderDown(relativeOrigin, {0,0,1,1},rect({-b.x,-b.y,b.w/2,b.h/2}));
   }
 
   void RenderDown(DrawNode * nd, rect cameradef, rect camera){
-    //std::cout << "camera def ";
-    //ptRect(cameradef);
-    //std::cout << "camera ... ";
-    //ptRect(camera);
     if(nd->Data.size() > 0){
       naiveShader->cameraPosition(camera.x,camera.y);
       naiveShader->cameraScale(camera.w,camera.h);
-      std::cout << camera.x << " " << camera.y << "\n";
       for(auto it = nd->Data.begin(); it != nd->Data.end(); it++){
-	//std::cout << "Found object..\n";
 	(*it)->draw();
       }
     }
@@ -219,18 +265,14 @@ public:
     for(int x = 0; x < 2;x++){
       for(int y = 0; y < 2;y++){
 	nd2 = nd->get_child(vec2(x,y),false); 
-	//std::cout <<x << " " << y << " " <<  nd2 << "\n";
 	if(nd2 != NULL){					
 	  rect subC = Intersect(cameradef,rect({(double)x,(double)y,0.5,0.5}));	
-	  if(true ||subC.w > 0 && subC.h > 0){				
+	  if(subC.w > 0 && subC.h > 0){				
 	    subC.x *= 2; 
 	    subC.y *= 2; 
 	    subC.w *= 2; 
 	    subC.h *= 2; 
 	    RenderDown(nd2,subC,{(2.0*camera.x +(double)x),(2.0*camera.y +(double) y),camera.w*2.0,camera.h*2.0});
-	    //std::cout << ",\n";
-	    }else{
-	    //std::cout << ".\n";
 	    }
 	}
       }
@@ -260,8 +302,11 @@ public:
 };
 
 
+
 int main(){
-  
+ 
+  //return 0;
+
   DrawNode dn;
   World world;
 
@@ -275,15 +320,20 @@ int main(){
   naiveShader = new NaiveShader();
   naiveShader->cameraScale(1,1);
   naiveShader->cameraPosition(0,0);
-  for(double i = 1; i < 10;i++){
+  for(double i = 0; i < 2000;i += 1){
+    for(double j =0; j < 2000;j+=1){
     Drawable* dw = new Drawable();
-    dw->x = 0.3*(i - 1.5);
-    dw->y = 0.3*(i - 1.5);
-    dw->w = 0.4/i;
-    dw->h = 0.4/i;
+    dw->x = 1.0*i;
+    dw->y = 1.0*j;
+    dw->w = 1.0;
+    dw->h = 1.0;
+    dw->r = sin(i*j/10.0)*0.5 + 0.5;
+    dw->g = sin(i*j/10.0 + 1)*0.5 + 0.5;
+    dw->b = sin(j*i/10.0 + 2)*0.5 + 0.5;
     world.AddObject(dw);
+    }
   }
-  world.Print();
+  //world.Print();
   NaiveShader ns;
   ns.pos(-0.5,-0.5);
   ns.scale(1,1);
@@ -291,8 +341,15 @@ int main(){
   ns.cameraPosition(0,0);
   float t = -1.0;
   vbo.BindBuffer(0);
+  Listener1 listener(800,600);
+  key_event_handler.register_listener(&listener);
+  mouse_click_handler.register_listener(&listener);
+  mouse_wheel_event_spawner.register_listener(&listener);
+  mouse_move_spawner.register_listener(&listener);
+  window_resize_event.register_listener(&listener);
   while(UpdateGraphics()){
     t += 0.01;
-    world.RenderFromOrigin(0,0,2.0+t,2.0+t);
+    glViewport(0,0,listener.viewport_width, listener.viewport_height);
+    world.RenderFromOrigin(listener.x,listener.y,listener.scale,listener.scale);
   }
 }

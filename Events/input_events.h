@@ -49,10 +49,13 @@ class MouseWheelEvent{
 
 };
 
-
 typedef struct mouse_position{
   int x,y;
 }mouse_position;
+
+typedef struct size{
+  int x,y;
+}size;
 
 #define CTRL 289
 #define ALT 291
@@ -68,7 +71,7 @@ extern EventSpawner<MouseClick> mouse_click_handler;
 extern EventSpawner<mouse_position> mouse_move_spawner;
 extern EventSpawner<CharEvent> char_event_spawner;
 extern EventSpawner<MouseWheelEvent> mouse_wheel_event_spawner;
-
+extern EventSpawner<size> window_resize_event;
 extern "C"{
 mouse_position get_mouse_position();
 void init_events();
