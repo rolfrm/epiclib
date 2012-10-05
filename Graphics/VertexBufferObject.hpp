@@ -7,10 +7,17 @@
 
 #ifndef VERTEXBUFFEROBJECT_HPP_
 #define VERTEXBUFFEROBJECT_HPP_
-#include<GL/gl.h>
+
+#include <GL/glew.h>
+#include <GL/gl.h>
+
+namespace Dormir{
+
 class VertexBufferObject{
 public:
 	VertexBufferObject(GLfloat * data,GLuint vertex_count,GLuint vertex_dimension,GLenum buffer_param=GL_STATIC_DRAW);
+	VertexBufferObject(const void * data,GLuint data_size,GLenum buffer_param=GL_STATIC_DRAW);
+	
 	VertexBufferObject(const VertexBufferObject & orginal);
 	~VertexBufferObject();
 
@@ -19,6 +26,7 @@ public:
 	GLuint * count,reference,n_vertex,dim_vertex;
 };
 
+}
 
 
 

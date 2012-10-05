@@ -7,8 +7,10 @@
 
 #include "Framebuffer.hpp"
 #include "Texture.hpp"
+#include "GraphicsCore.hpp"
 
 
+namespace Dormir{
 
 FrameBuffer::FrameBuffer(GLuint width,GLuint height,GLuint internal_format,GLuint texture_copies,GLuint interpolation,GLuint wrap){
 	render_buffer=new Texture2D(width,height,internal_format,texture_copies,interpolation,wrap);
@@ -20,7 +22,7 @@ FrameBuffer::FrameBuffer(GLuint width,GLuint height,GLuint internal_format,GLuin
 		glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0+i,GL_TEXTURE_2D,render_buffer->reference[i],0);
 	}
 
-	UnbindFramebuffer();
+	BindScreenBuffer();
 
 	count=new GLuint;
 	*count=1;
@@ -46,14 +48,17 @@ FrameBuffer::~FrameBuffer(){
 
 void FrameBuffer::BindFramebuffer(){
 	glBindFramebuffer(GL_FRAMEBUFFER,reference);
+	glViewport(0,0,render_buffer->width,render_buffer->height);
 }
 
-void FrameBuffer::UnbindFramebuffer(){
+void FrameBuffer::BindScreenBuffer(){
 	glBindFramebuffer(GL_FRAMEBUFFER,0);
+	glViewport(0,0,Dormir::getWidth(),Dormir::getHeight());
 }
 
-void FrameBuffer::ClearRenderBuffer(GLfloat red,GLfloat green,GLfloat blue,GLfloat alpha){
+void FrameBuffer::ClearColorBuffer(GLfloat red,GLfloat green,GLfloat blue,GLfloat alpha){
 	glClearColor(red,green,blue,alpha);
 	glClear( GL_COLOR_BUFFER_BIT);
 }
 
+}
