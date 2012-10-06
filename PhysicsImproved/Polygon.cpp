@@ -63,6 +63,40 @@ bool Triangle::pointInside(Vec2 p){
 }
 
 bool Polygon::isEar(std::vector<Vec2> & vertex_list,unsigned int index){
+	unsigned int prev_i=index-1,next_i=(index+1)%vertex_list.size();
+	if(index==0)
+	 	prev_i=vertex_list.size()-1;
+	 	
+	Triangle triangle(vertex_list[prev_i],vertex_list[index],vertex_list[next_i]);
+	
+	for(unsigned int i=(index+2)%vertex_list.size();i!=prev_i;i=(i+1)%vertex_list.size()){
+		if(triangle.pointInside(vertex_list[i]))
+			return false;
+	}
+	
+	return true;
+}
 
-	return false;
+void Polygon::decompose(){
+	std::vector<Vec2> vertex_list = complete_vertex_vector;
+	triangle_mesh.clear();
+	
+	while(vertex_list.size()>2){
+		unsigned int index=0;
+		for(int i=0;i<vertex_list.size();i++){
+			if(isEar(vertex_list,i)){
+				index=i;
+				break;
+			}
+		}
+		unsigned int prev_i=index-1,next_i=(index+1)%vertex_list.size();
+		if(index==0)
+	 		prev_i=vertex_list.size()-1;
+	 		
+		triangle_mesh.push_back(Triangle(vertex_list[prev_i],vertex_list[index],vertex_list[next_i]));
+		
+		vertex_list.erase(vertex_list.begin()+index);
+	
+	}
+
 }
