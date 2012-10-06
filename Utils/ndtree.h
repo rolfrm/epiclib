@@ -9,8 +9,6 @@ TODO: Avoid copy paste-code, but almost done
 #define NULL 0
 #endif
 
-int mod2(int x);
- 
 template<int N>
 class IVec{
 public:
@@ -163,6 +161,7 @@ public:
     }
     return children[nr];
   }
+
   Node * get_child(IVec<D> p,bool create){
     
     int index = ivec_to_index(p);
