@@ -13,14 +13,14 @@
 
 
 	Vec2::Vec2(){
-		SetValue(0,0);
+		setValue(0,0);
 	}
 
 	Vec2::Vec2(double x,double y){
-		SetValue(x,y);
+		setValue(x,y);
 	}
 
-	double Vec2::GetNorm2(){
+	double Vec2::getNorm2(){
 		return sqrt(x*x+y*y);
 	}
 
@@ -29,7 +29,7 @@
 		return V.x*U.y-V.y*U.x;
 	}
 
-	void Vec2::Print(){
+	void Vec2::print(){
 		std::cout<<"("<<x<<","<<y<<")\n";
 	}
 
