@@ -19,15 +19,16 @@ public:
   inline void operator /= (double v){x/=v,y/=v;};;
   inline Vec2 operator + (const Vec2 & V){return Vec2(x+V.x,y+V.y);};
   inline Vec2 operator - (const Vec2 & V){return Vec2(x-V.x,y-V.y);};
+  inline Vec2 operator - (){return Vec2(-x,-y);};
   inline Vec2 operator * (double v){return Vec2(v*x,v*y);};
   inline Vec2 operator / (double v){return Vec2(x/v,y/v);};;
   inline double operator * (const Vec2 & V){return V.x*x+V.y*y;};
   inline void operator = (const Vec2 & V){x=V.x,y=V.y;};
-  void SetValue(double nx,double ny){x=nx;y=ny;};
+  void setValue(double nx,double ny){x=nx;y=ny;};
 
-  double GetNorm2();
+  double getNorm2();
   
-  void Print();
+  void print();
   
   double x,y;
 };

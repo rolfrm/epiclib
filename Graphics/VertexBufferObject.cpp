@@ -5,9 +5,9 @@
  *      Author: sebastian
  */
 
-#include <GL/glew.h>
 #include "VertexBufferObject.hpp"
-#include <GL/gl.h>
+
+namespace Dormir{
 
 VertexBufferObject::VertexBufferObject(GLfloat * data,GLuint vertex_count,GLuint vertex_dimension,GLenum buffer_param){
 	glGenBuffers(1,&reference);
@@ -21,6 +21,20 @@ VertexBufferObject::VertexBufferObject(GLfloat * data,GLuint vertex_count,GLuint
 	*count=1;
 	n_vertex=vertex_count;
 	dim_vertex=vertex_dimension;
+}
+
+VertexBufferObject::VertexBufferObject(const void * data,GLuint data_size,GLenum buffer_param){
+	glGenBuffers(1,&reference);
+	glBindBuffer(GL_ARRAY_BUFFER,reference);
+
+	glBufferData(GL_ARRAY_BUFFER,data_size,data,buffer_param);
+
+	glBindBuffer(GL_ARRAY_BUFFER,0);
+
+	count=new GLuint;
+	*count=1;
+	n_vertex=data_size;
+	dim_vertex=0;
 }
 
 VertexBufferObject::VertexBufferObject(const VertexBufferObject & orginal){
@@ -50,3 +64,4 @@ void VertexBufferObject::BindBuffer(GLuint index){
 
 
 
+}
