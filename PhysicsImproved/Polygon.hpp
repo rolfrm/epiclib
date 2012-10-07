@@ -47,7 +47,7 @@ public:
 		complete_vertex_vector=vertex_list;
 	}
 	Polygon(double * vertex_array,unsigned int count){
-		for(int i=0;i<count;i++)
+		for(unsigned int i=0;i<count;i++)
 			complete_vertex_vector.push_back(Vec2(vertex_array[i*2],vertex_array[i*2+1]));
 	}
 	
@@ -64,6 +64,10 @@ public:
 	}
 	
 	bool isEar(std::vector<Vec2> & vertex_list,unsigned int index);
+	
+	bool isClockwise();
+	
+	void reverseVertex();
 	
 	std::vector<Vec2> complete_vertex_vector;
 	std::vector<Triangle> triangle_mesh;

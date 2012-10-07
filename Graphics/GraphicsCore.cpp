@@ -68,7 +68,7 @@ GLint UpdateGraphics(){
 
 	last_time+=temp;
 
-	return true;//!glfwGetKey( GLFW_KEY_ESC ) &&glfwGetWindowParam( GLFW_OPENED );
+	return !glfwGetKey( GLFW_KEY_ESC ) &&glfwGetWindowParam( GLFW_OPENED );
 }
 
 void GenerateObject2World(GLfloat * matrix,float dx,float dy,float da,float sx,float sy){

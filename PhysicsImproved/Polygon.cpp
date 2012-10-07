@@ -66,6 +66,11 @@ bool Polygon::isEar(std::vector<Vec2> & vertex_list,unsigned int index){
 	unsigned int prev_i=index-1,next_i=(index+1)%vertex_list.size();
 	if(index==0)
 	 	prev_i=vertex_list.size()-1;
+	
+	Vec2 v1=vertex_list[prev_i]-vertex_list[index],v2=vertex_list[next_i]-vertex_list[index];
+	
+	if(Crossproduct(v1,v2)>=0.0)
+	   return false;
 	 	
 	Triangle triangle(vertex_list[prev_i],vertex_list[index],vertex_list[next_i]);
 	
@@ -78,6 +83,10 @@ bool Polygon::isEar(std::vector<Vec2> & vertex_list,unsigned int index){
 }
 
 void Polygon::decompose(){
+	if(!isClockwise())
+		reverseVertex();
+	
+	
 	std::vector<Vec2> vertex_list = complete_vertex_vector;
 	triangle_mesh.clear();
 	
@@ -99,4 +108,27 @@ void Polygon::decompose(){
 	
 	}
 
+}
+
+bool Polygon::isClockwise()
+{
+  	double Area=0;
+	for(unsigned int i=0;i<complete_vertex_vector.size()-1;i++)
+		Area+=Crossproduct(complete_vertex_vector[i],complete_vertex_vector[i+1]);
+	
+	Area+=Crossproduct(complete_vertex_vector[complete_vertex_vector.size()-1],complete_vertex_vector[0]);
+// 	Area/=2;
+	if(Area<0.0)
+	   return false;
+	
+	return true;
+}
+
+void Polygon::reverseVertex()
+{
+  	std::vector<Vec2> Temp=complete_vertex_vector;
+	for(unsigned int i=0;i<complete_vertex_vector.size();i++){
+		complete_vertex_vector[i].x=Temp[complete_vertex_vector.size()-(i+1)].x;
+		complete_vertex_vector[i].y=Temp[complete_vertex_vector.size()-(i+1)].y;
+	}
 }
