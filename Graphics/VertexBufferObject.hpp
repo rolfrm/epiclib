@@ -11,8 +11,6 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 
-namespace Dormir{
-
 class VertexBufferObject{
 public:
 	VertexBufferObject(GLfloat * data,GLuint vertex_count,GLuint vertex_dimension,GLenum buffer_param=GL_STATIC_DRAW);
@@ -26,7 +24,6 @@ public:
 	GLuint * count,reference,n_vertex,dim_vertex;
 };
 
-}
 
 
 

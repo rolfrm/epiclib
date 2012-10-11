@@ -6,9 +6,6 @@
  */
 
 #include "VertexBufferObject.hpp"
-
-namespace Dormir{
-
 VertexBufferObject::VertexBufferObject(GLfloat * data,GLuint vertex_count,GLuint vertex_dimension,GLenum buffer_param){
 	glGenBuffers(1,&reference);
 	glBindBuffer(GL_ARRAY_BUFFER,reference);
@@ -62,6 +59,3 @@ void VertexBufferObject::BindBuffer(GLuint index){
 
 }
 
-
-
-}

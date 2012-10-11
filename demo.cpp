@@ -1,3 +1,4 @@
+#include <GL/glew.h>
 #include "Graphics/GraphicsCore.hpp"
 #include "Graphics/Program.hpp"
 #include "Graphics/VertexBufferObject.hpp"

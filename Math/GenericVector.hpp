@@ -1,4 +1,3 @@
-
 template<class T, int N>
 class Vec{
 public:
@@ -41,10 +40,7 @@ public:
   op2(/);
   op2(%);
   op2(*);
-
 };
-
-
 
 template<class T>
 Vec<T,1> Vec1(T d0){
@@ -77,3 +73,6 @@ Vec<T,4> Vec4(T d0, T d1, T d2, T d3){
   out.data[3] = d3;
   return out;
 }
+
+typedef Vec<double,3> Vec3d;
+typedef Vec<double,2> vec2d;
