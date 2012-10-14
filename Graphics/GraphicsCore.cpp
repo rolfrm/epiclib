@@ -55,6 +55,10 @@ void setFramerate(GLfloat n_framerate){
 	inv_framerate=1.0f/n_framerate;
 }
 
+void SwapBuffers(){
+  glfwSwapBuffers();
+}
+
 GLint UpdateGraphics(){
 	glfwSwapBuffers();
 	glBindFramebuffer(GL_FRAMEBUFFER,0);

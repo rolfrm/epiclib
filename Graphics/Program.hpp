@@ -10,7 +10,7 @@
 
 #include <GL/gl.h>
 #include <string>
-
+#include "../Math/GenericVector.hpp"
 
 class Shader{
 public:
@@ -50,6 +50,24 @@ public:
 	void setUniform(const char * name,int i1,int i2);
 	void setUniform(const char * name,int i1,int i2,int i3);
 	void setUniform(const char * name,int i1,int i2,int i3,int i4);
+
+  template<class T> 
+  void setUniform(const char * name, Vec<T,1> v){\
+    setUniform(name,v.data[0]);
+  }
+  template<class T> 
+  void setUniform(const char * name, Vec<T,2> v){\
+    setUniform(name,v.data[0],v.data[1]);
+  }
+  template<class T> 
+  void setUniform(const char * name, Vec<T,3> v){\
+    setUniform(name,v.data[0],v.data[1],v.data[2]);
+  }
+  template<class T> 
+  void setUniform(const char * name, Vec<T,4> v){\
+    setUniform(name,v.data[0],v.data[1],v.data[2],v.data[3]);
+  }
+  
 
 	void setUniformMat2x2(const char * name,float * mat);
 	void setUniformMat3x3(const char * name,float * mat);
