@@ -25,8 +25,10 @@ public:
   inline double operator * (const Vec2 & V){return V.x*x+V.y*y;};
   inline void operator = (const Vec2 & V){x=V.x,y=V.y;};
   void setValue(double nx,double ny){x=nx;y=ny;};
+  void SetValue(double nx,double ny){x=nx;y=ny;}; //to be deleted when new physics is done
 
   double getNorm2();
+  double GetNorm2(); //to be deleted when new physics is done
   double getNorm2Squared();
 
   void print();
