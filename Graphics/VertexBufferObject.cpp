@@ -6,16 +6,18 @@
  */
 
 #include "VertexBufferObject.hpp"
+#include <GL/glew.h>
+#include <GL/gl.h>
 
-namespace Dormir{
 
-VertexBufferObject::VertexBufferObject(GLfloat * data,GLuint vertex_count,GLuint vertex_dimension,GLenum buffer_param){
+VertexBufferObject::VertexBufferObject(float * data,unsigned int vertex_count,unsigned int vertex_dimension,unsigned int buffer_param){
 	glGenBuffers(1,&reference);
 	glBindBuffer(GL_ARRAY_BUFFER,reference);
 
-	glBufferData(GL_ARRAY_BUFFER,vertex_count*sizeof(GLfloat),data,buffer_param);
+	glBufferData(GL_ARRAY_BUFFER,vertex_count*sizeof(float),data,buffer_param);
 
 	glBindBuffer(GL_ARRAY_BUFFER,0);
+	dataType = GL_FLOAT;
 
 	count=new GLuint;
 	*count=1;
@@ -30,7 +32,7 @@ VertexBufferObject::VertexBufferObject(const void * data,GLuint data_size,GLenum
 	glBufferData(GL_ARRAY_BUFFER,data_size,data,buffer_param);
 
 	glBindBuffer(GL_ARRAY_BUFFER,0);
-
+	dataType = GL_FLOAT;
 	count=new GLuint;
 	*count=1;
 	n_vertex=data_size;
@@ -43,6 +45,7 @@ VertexBufferObject::VertexBufferObject(const VertexBufferObject & orginal){
 	reference=orginal.reference;
 	n_vertex=orginal.n_vertex;
 	dim_vertex=orginal.dim_vertex;
+	dataType = orginal.dataType;
 }
 
 VertexBufferObject::~VertexBufferObject(){
@@ -53,15 +56,28 @@ VertexBufferObject::~VertexBufferObject(){
 	}
 }
 
+GLenum dataTypes[] = {GL_DOUBLE, GL_FLOAT, GL_INT};
+GLenum vboDrawTypes[] = {GL_STATIC_DRAW,GL_DYNAMIC_DRAW,GL_STREAM_DRAW};
+void VertexBufferObject::genVBO(void * data, int totalSize, int dim, int typeidx, VBODrawType drawtype){
+  glGenBuffers(1,&reference);
+  glBindBuffer(GL_ARRAY_BUFFER,reference);
 
+  glBufferData(GL_ARRAY_BUFFER,totalSize,data,vboDrawTypes[(int) drawtype]);
+
+  glBindBuffer(GL_ARRAY_BUFFER,0);
+  dataType = dataTypes[typeidx];
+
+  count=new unsigned int;
+  *count=1;
+}
+#include<iostream>
 void VertexBufferObject::BindBuffer(GLuint index){
-	glBindBuffer(GL_ARRAY_BUFFER,reference);
-	glEnableVertexAttribArray(index);
-	glVertexAttribPointer(index,dim_vertex,GL_FLOAT,GL_FALSE,0,0);
-
-
+  glBindBuffer(GL_ARRAY_BUFFER,reference);
+  glEnableVertexAttribArray(index);
+  glVertexAttribPointer(index,dim_vertex,dataType,GL_FALSE,0,0);
 }
 
-
-
+GLenum drawMethods[] = {GL_POINTS, GL_TRIANGLES, GL_QUADS, GL_TRIANGLE_STRIP,GL_LINE_LOOP};
+void VertexBufferObject::DrawBuffers(DrawMethod drawMethod,int nof){
+  glDrawArrays(drawMethods[(int)drawMethod],0,nof);
 }

@@ -28,7 +28,7 @@ public:
 
   double getNorm2();
   double getNorm2Squared();
-  
+
   void print();
   
   double x,y;

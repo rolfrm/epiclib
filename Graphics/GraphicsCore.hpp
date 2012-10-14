@@ -8,22 +8,22 @@
 #ifndef SHADECORE_HPP_
 #define SHADECORE_HPP_
 
+#include "Color.h"
 
-#include <GL/gl.h>
-
-void initOpenGL(GLuint n_width,GLuint n_height,GLfloat n_framerate=60.0f);
+void initOpenGL(unsigned int n_width,unsigned int n_height,float n_framerate=60.0f);
 void terminateOpenGL();
+void ClearBuffer(Color color);
 
-void setFramerate(GLfloat n_framerate);
+void setFramerate(float n_framerate);
+void SwapBuffers();
+int UpdateGraphics();
 
-GLint UpdateGraphics();
+void GenerateObject2World(float * matrix,float dx,float dy,float da,float sx,float sy);
+void GenerateWorld2View(float * matrix,float dx,float dy,float da,float sx,float sy);
+void GenerateInverseWorld2View(float * matrix,float dx,float dy,float da,float sx,float sy);
 
-void GenerateObject2World(GLfloat * matrix,float dx,float dy,float da,float sx,float sy);
-void GenerateWorld2View(GLfloat * matrix,float dx,float dy,float da,float sx,float sy);
-void GenerateInverseWorld2View(GLfloat * matrix,float dx,float dy,float da,float sx,float sy);
-
-GLuint getWidth();
-GLuint getHeight();
+unsigned int getWidth();
+unsigned int getHeight();
 
 
 #endif /* SHADECORE_HPP_ */

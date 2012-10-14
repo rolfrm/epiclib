@@ -13,36 +13,38 @@
 #include <sstream>
 
 
-
-Shader Shader::FromString(const char * shaderAsString,GLenum type){
-
-  	int reference = glCreateShader(type);
-	const char * s =shaderAsString;
-	glShaderSource(reference,1,&s,NULL);
-	glCompileShader(reference);
+GLuint shaderTypes[] = {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_GEOMETRY_SHADER};
+Shader Shader::FromString(const char * shaderAsString,ShaderType stype){
 
 
-	GLint status;
-	glGetShaderiv(reference, GL_COMPILE_STATUS, &status);
-	if (status == GL_FALSE){
-		GLint infoLogLength;
-		glGetShaderiv(reference, GL_INFO_LOG_LENGTH, &infoLogLength);
-		GLchar *strInfoLog = new GLchar[infoLogLength + 1];
-		glGetShaderInfoLog(reference, infoLogLength, NULL, strInfoLog);
+  GLuint type = shaderTypes[(int)stype];
+  int reference = glCreateShader(type);
+  const char * s =shaderAsString;
+  glShaderSource(reference,1,&s,NULL);
+  glCompileShader(reference);
 
-		const char *strShaderType = NULL;
-	    switch(type){
-	        case GL_VERTEX_SHADER: strShaderType = "vertex"; break;
-	        case GL_GEOMETRY_SHADER: strShaderType = "geometry"; break;
-	        case GL_FRAGMENT_SHADER: strShaderType = "fragment"; break;
-	    }
-	    fprintf(stderr, "Compile failure in %s shader:\n%s\n", strShaderType, strInfoLog);
-	    delete[] strInfoLog;
-	}
-	return Shader(reference, type);
+  
+  GLint status;
+  glGetShaderiv(reference, GL_COMPILE_STATUS, &status);
+  if (status == GL_FALSE){
+    GLint infoLogLength;
+    glGetShaderiv(reference, GL_INFO_LOG_LENGTH, &infoLogLength);
+    GLchar *strInfoLog = new GLchar[infoLogLength + 1];
+    glGetShaderInfoLog(reference, infoLogLength, NULL, strInfoLog);
+    
+    const char *strShaderType = NULL;
+    switch(type){
+    case GL_VERTEX_SHADER: strShaderType = "vertex"; break;
+    case GL_GEOMETRY_SHADER: strShaderType = "geometry"; break;
+    case GL_FRAGMENT_SHADER: strShaderType = "fragment"; break;
+    }
+    fprintf(stderr, "Compile failure in %s shader:\n%s\n", strShaderType, strInfoLog);
+    delete[] strInfoLog;
+  }
+  return Shader(reference, type);
 	
 }
-Shader Shader::FromFile(const char * shaderPath, GLenum type){
+Shader Shader::FromFile(const char * shaderPath, ShaderType type){
 	std::ifstream is (shaderPath,std::ios::in);
 	std::stringstream buffer;
 	buffer<<is.rdbuf();
@@ -225,15 +227,15 @@ void Program::setUniform(const char * name,int i1,int i2,int i3,int i4){
 }
 
 void Program::setUniformMat2x2(const char * name,float * mat){
-	glUniformMatrix2fv(getUniformLocation(name),1,false,mat);
+	glUniformMatrix2fv(getUniformLocation(name),1,true,mat);
 }
 
 void Program::setUniformMat3x3(const char * name,float * mat){
-	glUniformMatrix3fv(getUniformLocation(name),1,false,mat);
+	glUniformMatrix3fv(getUniformLocation(name),1,true,mat);
 }
 
 void Program::setUniformMat4x4(const char * name,float * mat){
-	glUniformMatrix4fv(getUniformLocation(name),1,false,mat);
+	glUniformMatrix4fv(getUniformLocation(name),1,true,mat);
 }
 
 void Program::UseProgram(){

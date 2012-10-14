@@ -10,7 +10,7 @@ public:
     priority = 0;
   }
   virtual bool handle_event(event_type evt){
-    
+    return false;
   }
   bool operator<(const EventListener & other){
     return other.priority > priority;

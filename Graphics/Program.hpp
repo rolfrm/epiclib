@@ -10,7 +10,9 @@
 
 #include <GL/gl.h>
 #include <string>
+#include "../Math/GenericVector.hpp"
 
+enum class ShaderType: int{VERTEX = 0, FRAGMENT = 1, GEOMETRY=2};
 
 class Shader{
 public:
@@ -19,8 +21,8 @@ public:
   Shader(int reference, GLenum type);
   
 	~Shader();
-  static Shader FromString(const char * shaderAsString,GLenum type);
-  static Shader FromFile(const char * shaderPath, GLenum type);
+  static Shader FromString(const char * shaderAsString,ShaderType shaderType);
+  static Shader FromFile(const char * shaderPath, ShaderType shaderType);
 	GLuint * count,reference;
 	GLenum type;
 };
@@ -51,14 +53,31 @@ public:
 	void setUniform(const char * name,int i1,int i2,int i3);
 	void setUniform(const char * name,int i1,int i2,int i3,int i4);
 
-	void setUniformMat2x2(const char * name,float * mat);
-	void setUniformMat3x3(const char * name,float * mat);
-	void setUniformMat4x4(const char * name,float * mat);
+  template<class T> 
+  void setUniform(const char * name, Vec<T,1> v){\
+    setUniform(name,v.data[0]);
+  }
+  template<class T> 
+  void setUniform(const char * name, Vec<T,2> v){\
+    setUniform(name,v.data[0],v.data[1]);
+  }
+  template<class T> 
+  void setUniform(const char * name, Vec<T,3> v){\
+    setUniform(name,v.data[0],v.data[1],v.data[2]);
+  }
+  template<class T> 
+  void setUniform(const char * name, Vec<T,4> v){\
+    setUniform(name,v.data[0],v.data[1],v.data[2],v.data[3]);
+  }
+  
+  void setUniformMat2x2(const char * name,float * mat);
+  void setUniformMat3x3(const char * name,float * mat);
+  void setUniformMat4x4(const char * name,float * mat);
 
   void BindAttribute(std::string name,GLuint location);
-	void UseProgram();
+  void UseProgram();
   void Link();
-	GLuint * count,reference;
+  GLuint * count,reference;
 };
 
 

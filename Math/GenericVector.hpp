@@ -1,10 +1,10 @@
-
+#pragma once
 template<class T, int N>
 class Vec{
 public:
   T data[N];
 
-#define op1(opr) \
+#define other_vector_operator(opr) \
   Vec<T,N> operator opr (Vec<T,N> other){	\
     Vec<T,N> out;\
     for(int i = 0; i< N;i++){\
@@ -13,7 +13,7 @@ public:
     return out;\
   }
 
-#define op2(opr) \
+#define scalar_operator(opr) \
   Vec<T,N> operator opr (T other){	\
     Vec<T,N> out;\
     for(int i = 0; i< N;i++){\
@@ -30,38 +30,35 @@ public:
     return out;
   }
 
-  op1(+);
-  op1(-);
-  op1(/);
-  op1(%);
-  op1(*);
+  other_vector_operator(+);
+  other_vector_operator(-);
+  other_vector_operator(/);
+  other_vector_operator(%);
+  other_vector_operator(*);
 
-  op2(+);
-  op2(-);
-  op2(/);
-  op2(%);
-  op2(*);
-
+  scalar_operator(+);
+  scalar_operator(-);
+  scalar_operator(/);
+  scalar_operator(%);
+  scalar_operator(*);
 };
 
-
-
 template<class T>
-Vec<T,1> Vec1(T d0){
+Vec<T,1> vec(T d0){
   Vec<T,1> out;
   out.data[0] = d0;
   return out;
 }
 
 template<class T>
-Vec<T,2> Vec2(T d0, T d1){
+Vec<T,2> vec(T d0, T d1){
   Vec<T,2> out;
   out.data[0] = d0;
   out.data[1] = d1;
   return out;
 }
 template<class T>
-Vec<T,3> Vec3(T d0, T d1, T d2){
+Vec<T,3> vec(T d0, T d1, T d2){
   Vec<T,3> out;
   out.data[0] = d0;
   out.data[1] = d1;
@@ -69,7 +66,7 @@ Vec<T,3> Vec3(T d0, T d1, T d2){
   return out;
 }
 template<class T>
-Vec<T,4> Vec4(T d0, T d1, T d2, T d3){
+Vec<T,4> vec(T d0, T d1, T d2, T d3){
   Vec<T,4> out;
   out.data[0] = d0;
   out.data[1] = d1;
@@ -77,3 +74,6 @@ Vec<T,4> Vec4(T d0, T d1, T d2, T d3){
   out.data[3] = d3;
   return out;
 }
+
+typedef Vec<double,3> Vec3d;
+typedef Vec<double,2> vec2d;
