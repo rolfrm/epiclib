@@ -23,6 +23,10 @@
 	double Vec2::getNorm2(){
 		return sqrt(x*x+y*y);
 	}
+	
+	double Vec2::getNorm2Squared(){
+		return x*x+y*y;
+	}
 
 
 	double Crossproduct(Vec2 V,Vec2 U){

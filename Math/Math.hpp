@@ -27,6 +27,7 @@ public:
   void setValue(double nx,double ny){x=nx;y=ny;};
 
   double getNorm2();
+  double getNorm2Squared();
   
   void print();
   

@@ -7,8 +7,10 @@ class Triangle{
 public:
 	Triangle(Vec2 v1,Vec2 v2,Vec2 v3){
 		Vertex[0]=v1,Vertex[1]=v2,Vertex[2]=v3;
-			calcNormalsAndEdges();
-			calcAreaAndInertia();
+		calcNormalsAndEdges();
+		calcAreaAndInertia();
+		calcBoundingCircle();
+	  
 	}
 	
 	Triangle(const Triangle & original){
@@ -19,6 +21,8 @@ public:
 		}
 		inertia=original.inertia;
 		area=original.area;
+		Center=original.Center;
+		radius=original.radius;
 	}
 	
 	bool pointInside(Vec2 point);
@@ -29,11 +33,14 @@ public:
 	
 	void calcAreaAndInertia();
 	
+	void calcBoundingCircle();
+	
 	Vec2 Vertex[3];
 	Vec2 Normal[3];
 	Vec2 Edge[3];
+	Vec2 Center;
 	
-	double inertia,area;
+	double inertia,area,radius;
 };
 
 class Polygon{

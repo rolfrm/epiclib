@@ -62,6 +62,25 @@ bool Triangle::pointInside(Vec2 p){
 
 }
 
+void Triangle::calcBoundingCircle()
+{
+  Center.setValue(0,0);
+  
+  for(int i=0;i<3;i++)
+    Center+=Vertex[i];
+  
+  Center/=3.0;
+  
+  radius=0;
+  
+  for(int i=0;i<3;i++){
+    double temp=Vertex[i]-Center;
+    if(temp>radius)
+      radius=temp;
+  }
+}
+
+
 bool Polygon::isEar(std::vector<Vec2> & vertex_list,unsigned int index){
 	unsigned int prev_i=index-1,next_i=(index+1)%vertex_list.size();
 	if(index==0)
