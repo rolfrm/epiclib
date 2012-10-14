@@ -5,9 +5,9 @@
  *      Author: sebastian
  */
 
+#include "GraphicsCore.hpp"
 
 #include <GL/glew.h>
-#include "GraphicsCore.hpp"
 #include <math.h>
 #include <IL/il.h>
 #include <GL/gl.h>
@@ -25,6 +25,10 @@ GLuint getHeight(){
 	return Height;
 }
 
+void ClearBuffer(Color color){
+  glClearColor(color.data[0],color.data[1],color.data[2],color.data[3]);
+  glClear(GL_COLOR_BUFFER_BIT);
+}
 
 
 void initOpenGL(GLuint n_width,GLuint n_height,GLfloat n_framerate){

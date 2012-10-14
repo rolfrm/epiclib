@@ -12,6 +12,8 @@
 #include <string>
 #include "../Math/GenericVector.hpp"
 
+enum class ShaderType: int{VERTEX = 0, FRAGMENT = 1, GEOMETRY=2};
+
 class Shader{
 public:
 	Shader(const char * shader_str,GLenum type);
@@ -19,8 +21,8 @@ public:
   Shader(int reference, GLenum type);
   
 	~Shader();
-  static Shader FromString(const char * shaderAsString,GLenum type);
-  static Shader FromFile(const char * shaderPath, GLenum type);
+  static Shader FromString(const char * shaderAsString,ShaderType shaderType);
+  static Shader FromFile(const char * shaderPath, ShaderType shaderType);
 	GLuint * count,reference;
 	GLenum type;
 };
@@ -68,15 +70,14 @@ public:
     setUniform(name,v.data[0],v.data[1],v.data[2],v.data[3]);
   }
   
-
-	void setUniformMat2x2(const char * name,float * mat);
-	void setUniformMat3x3(const char * name,float * mat);
-	void setUniformMat4x4(const char * name,float * mat);
+  void setUniformMat2x2(const char * name,float * mat);
+  void setUniformMat3x3(const char * name,float * mat);
+  void setUniformMat4x4(const char * name,float * mat);
 
   void BindAttribute(std::string name,GLuint location);
-	void UseProgram();
+  void UseProgram();
   void Link();
-	GLuint * count,reference;
+  GLuint * count,reference;
 };
 
 

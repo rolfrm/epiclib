@@ -1,3 +1,4 @@
+#pragma once
 template<class T, int N>
 class Vec{
 public:

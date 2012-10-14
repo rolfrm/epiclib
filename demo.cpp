@@ -20,8 +20,8 @@ int main(){
   initOpenGL(800,600);
   init_events();
   VertexBufferObject vbo(data,8,2);
-  Shader vert = Shader::FromFile("vert_naive.vert",GL_VERTEX_SHADER);
-  Shader frag = Shader::FromFile("frag_naive.frag",GL_FRAGMENT_SHADER);
+  Shader vert = Shader::FromFile("vert_naive.vert",ShaderType::VERTEX);
+  Shader frag = Shader::FromFile("frag_naive.frag",ShaderType::FRAGMENT);
   Program p1(vert,frag);
   p1.UseProgram();
 
