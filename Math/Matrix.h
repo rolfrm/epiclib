@@ -51,7 +51,7 @@ template<class T, int size>
       for(int j = 0; j < size;j++){
 	out[i][j] = 0;
 	for(int k = 0; k < 4;k++){
-	  out[i][j]+= operator[](k)[j]*other[i][k];
+	  out[i][j]+= operator[](i)[k]*other[k][j];
 	}
       }
     }
@@ -79,7 +79,7 @@ matrix4x4 mult(matrix4x4 a, matrix4x4 b){
     for(int j = 0; j < 4;j++){
       out.rows[i][j] = 0;
       for(int k = 0; k < 4;k++){
-	out.rows[i][j]+= a.rows[k][i]*b.rows[j][k];
+	out.rows[i][j]+= a.rows[j][k]*b.rows[k][i];
       }
     }
   }
