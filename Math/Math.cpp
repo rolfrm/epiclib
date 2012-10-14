@@ -23,7 +23,11 @@
 	double Vec2::getNorm2(){
 		return sqrt(x*x+y*y);
 	}
-	
+
+double Vec2::GetNorm2(){
+  return getNorm2();
+}
+
 	double Vec2::getNorm2Squared(){
 		return x*x+y*y;
 	}

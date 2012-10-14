@@ -3,6 +3,10 @@ template<class T, int N>
 class Vec{
 public:
   T data[N];
+  T & operator[](unsigned int i){
+    return data[i];
+  }
+
 
 #define other_vector_operator(opr) \
   Vec<T,N> operator opr (Vec<T,N> other){	\

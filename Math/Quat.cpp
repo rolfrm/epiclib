@@ -9,7 +9,7 @@
 #include <math.h>
 #include <iostream>
 
-Quaternion::Quaternion(GLfloat ax,GLfloat ay,GLfloat az,GLfloat aw){
+Quaternion::Quaternion(float ax,float ay,float az,float aw){
 	x=ax;
 	y=ay;
 	z=az;
@@ -34,7 +34,7 @@ Quaternion Quaternion::operator *(Quaternion Q){
 
 
 void Quaternion::normalize(){
-	GLfloat mag=sqrt(x*x+y*y+z*z+w*w);
+	float mag=sqrt(x*x+y*y+z*z+w*w);
 	w/=mag;
 	x/=mag;
 	y/=mag;
@@ -46,7 +46,7 @@ void Quaternion::print(){
 }
 
 
-void Quaternion::Write2Matrix(GLfloat * MatrixArray){
+void Quaternion::Write2Matrix(float * MatrixArray){
 	/*(*M)<<1-2*Q.y*Q.y-2*Q.z*Q.z<<2*Q.x*Q.y-2*Q.w*Q.z<<2*Q.x*Q.z+2*Q.w*Q.y<<0<<arma::endr
 			<<2*Q.x*Q.y+2*Q.w*Q.z<<1-2*Q.x*Q.x-2*Q.z*Q.z<<2*Q.y*Q.z-2*Q.w*Q.x<<0<<arma::endr
 			<<2*Q.x*Q.z-2*Q.w*Q.y<<2*Q.y*Q.z+2*Q.w*Q.x<<1-2*Q.x*Q.x-2*Q.y*Q.y<<0<<arma::endr

@@ -8,22 +8,20 @@
 #ifndef QUAT_HPP_
 #define QUAT_HPP_
 
-#include <GL/gl.h>
-
 class Quaternion{
 public:
-	Quaternion(GLfloat ax,GLfloat ay,GLfloat az,GLfloat aw);
+	Quaternion(float ax,float ay,float az,float aw);
 
 	void operator =(Quaternion);
 	Quaternion operator * (Quaternion);
 
 	void normalize();
 
-	void Write2Matrix(GLfloat * MatrixArray);
+	void Write2Matrix(float * MatrixArray);
 
 	void print();
 
-	GLfloat x,y,z,w;
+	float x,y,z,w;
 };
 
 #endif /* QUAT_HPP_ */
