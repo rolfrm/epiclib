@@ -7,11 +7,9 @@
 
 #include "GraphicsCore.hpp"
 
-#include <GL/glew.h>
-#include <math.h>
-#include <IL/il.h>
-#include <GL/gl.h>
-#include <GL/glfw.h>
+
+
+#include "../Math/Quat.hpp"
 
 GLuint Width,Height;
 GLfloat framerate,inv_framerate;
@@ -79,35 +77,52 @@ GLint UpdateGraphics(){
 	return !glfwGetKey( GLFW_KEY_ESC ) &&glfwGetWindowParam( GLFW_OPENED );
 }
 
-void GenerateObject2World(GLfloat * matrix,float dx,float dy,float da,float sx,float sy){
-	for(unsigned int i=0;i<16;i++){
-		matrix[i]=0;
-	}
-	matrix[0]=sx*cos(da),matrix[4]=-sx*sin(da),matrix[12]=dx,
-			matrix[1]=sy*sin(da),matrix[5]=sy*cos(da),matrix[13]=dy;
-
-	matrix[10]=1,matrix[15]=1;
+void GenerateView2Perspective(GLfloat * mat,GLfloat width,GLfloat height,GLfloat near,GLfloat far){
+	for(int i=0;i<16;i++)
+		mat[i]=0;
+	
+	mat[0]=near/width;
+	mat[5]=near/height;
+	mat[10]=-(near+far)/(far-near);
+	mat[11]=-1;
+	mat[14]=-2.0f*far*near/(far-near);
 }
 
-void GenerateWorld2View(GLfloat * matrix,float dx,float dy,float da,float sx,float sy){
-	for(unsigned int i=0;i<16;i++){
-		matrix[i]=0;
-	}
-	matrix[0]=sx*cos(da),matrix[4]=-sx*sin(da),matrix[12]=sx*dx,
-			matrix[1]=sy*sin(da),matrix[5]=sy*cos(da),matrix[13]=sy*dy;
+void GenerateWorld2View(GLfloat * mat,vec3 position,vec3 angle){
+	for(int i=0;i<16;i++)
+		mat[i]=0;
+	
+	Quaternion t1(sin(angle.x/2),0,0,cos(angle.x/2)),t2(0,sin(angle.y/2),0,cos(angle.y/2)),t3(0,0,sin(angle.z/2),cos(angle.z/2));
+	Quaternion tot=t1*t2*t3;
+	
+	GLfloat temp[16];
+	
+	tot.Write2Matrix(temp);
 
-	matrix[10]=1,matrix[15]=1;
+	mat[0]=temp[0],mat[4]=temp[4],mat[8]=temp[8],mat[12]=position.x*temp[0]+position.y*temp[4]+position.z*temp[8];
+	mat[1]=temp[1],mat[5]=temp[5],mat[9]=temp[9],mat[13]=position.x*temp[1]+position.y*temp[5]+position.z*temp[9];
+	mat[2]=temp[2],mat[6]=temp[6],mat[10]=temp[10],mat[14]=position.x*temp[2]+position.y*temp[6]+position.z*temp[10];
+	mat[3]=0,mat[7]=0,mat[11]=0,mat[15]=1;
+
 }
 
+void GenerateObject2World(GLfloat * mat,vec3 position,vec3 angle,vec3 scale){
+	for(unsigned int i=0;i<16;i++)
+		mat[i]=0;
+	Quaternion t1(sin(angle.x/2),0,0,cos(angle.x/2)),t2(0,sin(angle.y/2),0,cos(angle.y/2)),t3(0,0,sin(angle.z/2),cos(angle.z/2));
+	Quaternion tot=t1*t2*t3;
 
-void GenerateInverseWorld2View(GLfloat * matrix,float dx,float dy,float da,float sx,float sy){
-	for(unsigned int i=0;i<16;i++){
-		matrix[i]=0;
-	}
 
-	matrix[0]=cos(da)/sx,matrix[4]=-sin(da)/sy,matrix[12]=sin(da)*dy-cos(da)*dx;
-	matrix[1]=sin(da)/sx,matrix[5]=cos(da)/sy,matrix[13]=-(sin(da)*dx+cos(da)*dy);
-	matrix[10]=1,matrix[15]=1;
+	GLfloat temp[16];
+
+	tot.Write2Matrix(temp);
+
+	mat[0]=temp[0],mat[4]=temp[4],mat[8]=temp[8],mat[12]=position.x;
+	mat[1]=temp[1],mat[5]=temp[5],mat[9]=temp[9],mat[13]=position.y;
+	mat[2]=temp[2],mat[6]=temp[6],mat[10]=temp[10],mat[14]=position.z;
+	mat[3]=0,mat[7]=0,mat[11]=0,mat[15]=1;
+
+
 }
 
 
