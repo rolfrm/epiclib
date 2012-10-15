@@ -13,8 +13,8 @@ class MatrixBase{
     Data = data;
   }
 };
-/*
-template<class T, int rows, int cols>
+
+/*template<class T, int rows, int cols>
   class Matrix: public MatrixBase<T>{
   Vec<T,cols> data[rows];
  public:
@@ -27,11 +27,11 @@ template<class T, int rows, int cols>
     return data[i];
   }
 
-  };*/
-
+  };
+*/
 template<class T, int size>
   class Matrix: public MatrixBase<T>{
-  Vec<T,size> data[size];
+  Vec<T,size> cols[size];
  public:
  Matrix():MatrixBase<T>(size,size,&data[0][0])
     {
@@ -39,20 +39,26 @@ template<class T, int size>
     }
  Matrix(T * _data):MatrixBase<T>(size,size,&data[0][0])
     {
-      std::copy(_data,_data+size*size,&data[0][0]);
+      std::copy(_data,_data+size*size,&cols[0][0]);
     }
 
-  Vec<T,size> & operator[](int i){
-    return data[i];
+  Vec<T,size> & operator[](int col){
+    return data[col];
   }
+
+  T & operator[](int col, int row){
+    return data[col][row];
+  }
+
   Matrix<T,size> operator*(Matrix<T,size>& other){
     Matrix<T,size> out;
     for(int i = 0;i <size;i++){
       for(int j = 0; j < size;j++){
-	out[i][j] = 0;
-	for(int k = 0; k < 4;k++){
-	  out[i][j]+= operator[](i)[k]*other[k][j];
+	out[i][j] = operator[](0,i)*other[j,0];
+	for(int k = 1; k < size;k++){
+	  out[i][j] += operator[](k,i)*other[j,k];
 	}
+	
       }
     }
     return out;
@@ -67,31 +73,3 @@ template<class T, int size>
   }
 
 };
-
-
-struct matrix4x4{
-  Vec<float,4> rows[4];
-};
-
-matrix4x4 mult(matrix4x4 a, matrix4x4 b){
-  matrix4x4 out;
-  for(int i = 0;i <4;i++){
-    for(int j = 0; j < 4;j++){
-      out.rows[i][j] = 0;
-      for(int k = 0; k < 4;k++){
-	out.rows[i][j]+= a.rows[j][k]*b.rows[k][i];
-      }
-    }
-  }
-  return out;
-
-}
-
-void printMatrix(matrix4x4 mat){
-  for(int i = 0; i < 4;i++){
-    for(int j = 0; j < 4;j++){
-      std::cout << mat.rows[i][j] << " ";
-    }
-    std::cout << "\n";
-  }
-}

@@ -227,15 +227,15 @@ void Program::setUniform(const char * name,int i1,int i2,int i3,int i4){
 }
 
 void Program::setUniformMat2x2(const char * name,float * mat){
-	glUniformMatrix2fv(getUniformLocation(name),1,true,mat);
+	glUniformMatrix2fv(getUniformLocation(name),1,false,mat);
 }
 
 void Program::setUniformMat3x3(const char * name,float * mat){
-	glUniformMatrix3fv(getUniformLocation(name),1,true,mat);
+	glUniformMatrix3fv(getUniformLocation(name),1,false,mat);
 }
 
 void Program::setUniformMat4x4(const char * name,float * mat){
-	glUniformMatrix4fv(getUniformLocation(name),1,true,mat);
+	glUniformMatrix4fv(getUniformLocation(name),1,false,mat);
 }
 
 void Program::UseProgram(){
