@@ -25,6 +25,11 @@ VertexBufferObject::VertexBufferObject(float * data,unsigned int vertex_count,un
 	dim_vertex=vertex_dimension;
 }
 
+
+VertexBufferObject::VertexBufferObject(){
+  count = NULL;
+}
+
 VertexBufferObject::VertexBufferObject(const void * data,GLuint data_size,GLenum buffer_param){
 	glGenBuffers(1,&reference);
 	glBindBuffer(GL_ARRAY_BUFFER,reference);
@@ -41,7 +46,9 @@ VertexBufferObject::VertexBufferObject(const void * data,GLuint data_size,GLenum
 
 VertexBufferObject::VertexBufferObject(const VertexBufferObject & orginal){
 	count=orginal.count;
-	*count+=1;
+	if(count != NULL){
+	  *count +=1;
+	}
 	reference=orginal.reference;
 	n_vertex=orginal.n_vertex;
 	dim_vertex=orginal.dim_vertex;
@@ -49,9 +56,13 @@ VertexBufferObject::VertexBufferObject(const VertexBufferObject & orginal){
 }
 
 VertexBufferObject::~VertexBufferObject(){
-	*count-=1;
+  if(count == NULL){
+    return;
+  }
+  *count-=1;
 	if(*count==0){
-		delete count;
+	
+	  delete count;
 		glDeleteBuffers(1,&reference);
 	}
 }

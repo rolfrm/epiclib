@@ -28,6 +28,8 @@ public:
     genVBO((void *) data,vertex_count*dim*sizeof(T),dim,typeIdx,drawType);
   }
 
+  VertexBufferObject();
+
   VertexBufferObject(const VertexBufferObject & orginal);
   ~VertexBufferObject();
 
@@ -36,7 +38,7 @@ public:
   unsigned int reference,n_vertex,dim_vertex, dataType;
 
   static void DrawBuffers(DrawMethod drawMethod,int nof);
-  static void DrawBuffers(DrawMethod drawMethod,int nof,VertexBufferObject &v1){
+  /*static void DrawBuffers(DrawMethod drawMethod,int nof,VertexBufferObject &v1){
     v1.BindBuffer(0);
     DrawBuffers(drawMethod,nof);
   }
@@ -51,7 +53,7 @@ public:
   static void DrawBuffers(DrawMethod drawMethod,int nof,VertexBufferObject &v1, VertexBufferObject &v2, VertexBufferObject &v3,VertexBufferObject &v4){
     v4.BindBuffer(3);
     DrawBuffers(drawMethod,nof,v1,v2,v3);
-  }
+    }*/
 
 };
 

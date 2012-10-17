@@ -29,40 +29,70 @@ class MatrixBase{
 
   };
 */
+
+
+/*
+Hack to ensure initial value of 0
+*/
+template<class T> 
+class nullValue{
+ public:
+  T v;
+  nullValue(){
+    v = 0;
+  }
+};
+
 template<class T, int size>
   class Matrix: public MatrixBase<T>{
   Vec<T,size> cols[size];
+  static nullValue<T> nullValues [size*size];
  public:
- Matrix():MatrixBase<T>(size,size,&data[0][0])
+ Matrix():MatrixBase<T>(size,size,&cols[0][0])
     {
 
     }
- Matrix(T * _data):MatrixBase<T>(size,size,&data[0][0])
+ Matrix(T * _data):MatrixBase<T>(size,size,&cols[0][0])
     {
       std::copy(_data,_data+size*size,&cols[0][0]);
     }
 
   Vec<T,size> & operator[](int col){
-    return data[col];
+    return cols[col];
   }
 
-  T & operator[](int col, int row){
-    return data[col][row];
+  static Matrix<T,size> Zeros(){
+    Matrix<T,size> out;
+    std::copy(&nullValues[0].v,((&nullValues[0].v) + size*size),&out[0][0]);
+    return out;
+  }
+
+  static Matrix<T,size> Eye(){
+    Matrix<T,size> out = Zeros();
+    for(int i = 0; i < size;i++){
+      out[i][i] = 1;
+    }
+    return out;
   }
 
   Matrix<T,size> operator*(Matrix<T,size>& other){
     Matrix<T,size> out;
     for(int i = 0;i <size;i++){
       for(int j = 0; j < size;j++){
-	out[i][j] = operator[](0,i)*other[j,0];
+	out[j][i] = operator[](0)[i]*other[j][0];
 	for(int k = 1; k < size;k++){
-	  out[i][j] += operator[](k,i)*other[j,k];
+	  out[j][i] += operator[](k)[i]*other[j][k];
 	}
 	
       }
     }
     return out;
   }
+
+  T * asPtr(){
+    return &(operator[](0)[0]);
+  }
+
   void print(){
      for(int i = 0;i <size;i++){
       for(int j = 0; j < size;j++){
@@ -73,3 +103,5 @@ template<class T, int size>
   }
 
 };
+template<class T, int size>
+  nullValue<T> Matrix<T,size>::nullValues[size*size];
