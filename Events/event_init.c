@@ -7,8 +7,6 @@
 #include "input_events.h"
 #include <list>
 
-
-
 EventSpawner<KeyEvent> key_event_handler;
 EventSpawner<MouseClick> mouse_click_handler;
 EventSpawner<mouse_position> mouse_move_spawner;
@@ -21,6 +19,11 @@ void GLFWCALL mousebuttoncallback(int button, int action){
   mouse_click_handler.spawn_event(mEv);
 
 }
+
+void SetMousePosition(int x, int y){
+  glfwSetMousePos(x,y);
+}
+
 #include <iostream>
 int last_wheel_pos = 0;
 void GLFWCALL mouse_wheel_callback(int mwpos){

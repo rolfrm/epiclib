@@ -1,9 +1,8 @@
 attribute vec3 localPosition;
 
-uniform mat4 Projection;
-uniform mat4 Modelview;
- 
+uniform mat4 T;
+
 void main(void) { 
-    gl_Position = Projection * Modelview * vec4(localPosition,1);
-    //gl_Position = vec4(localPosition.xy,0,1);
+    gl_Position = T * vec4(localPosition,1);
+
 }

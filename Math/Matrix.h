@@ -1,6 +1,5 @@
 #pragma once
 #include "GenericVector.hpp"
-#include<iostream>
 
 template<class T>
 class MatrixBase{
@@ -90,12 +89,12 @@ template<class T, int size>
     return out;
   }
 
-  Matrix<T,size> operator*(Vec<T,size> other){
+  Vec<T,size> operator*(Vec<T,size> other){
     Vec<T,size> out;
     for(int i = 0;i <size;i++){
       out[i] = 0;
       for(int j = 0; j < size;j++){
-	out[i] += operator[](j)[i]*other[i];
+	out[i] += operator[](i)[j] * other[j];
       }
     }
     return out;
@@ -105,15 +104,8 @@ template<class T, int size>
     return &(operator[](0)[0]);
   }
 
-  void print(){
-     for(int i = 0;i <size;i++){
-      for(int j = 0; j < size;j++){
-	std::cout << (*this)[j][i] << " ";
-      }
-      std::cout << "\n";
-     }
-  }
 
 };
+
 template<class T, int size>
   nullValue<T> Matrix<T,size>::nullValues[size*size];

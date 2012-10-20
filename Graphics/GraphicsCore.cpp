@@ -25,7 +25,7 @@ GLuint getHeight(){
 
 void ClearBuffer(Color color){
   glClearColor(color.data[0],color.data[1],color.data[2],color.data[3]);
-  glClear(GL_COLOR_BUFFER_BIT);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 

@@ -57,22 +57,30 @@ typedef struct size{
   int x,y;
 }size;
 
+
+
+
 #define CTRL 289
 #define ALT 291
 #define ARROW_LEFT 285
 #define ARROW_RIGHT 286
+#define ARROW_UP 284
+#define ARROW_DOWN 283
 #define ENTER 294
 #define BACKSPACE 295
 #define DELETE 297
 #define SHIFT 287
 #define TAB 293
+
 extern EventSpawner<KeyEvent> key_event_handler;
 extern EventSpawner<MouseClick> mouse_click_handler;
 extern EventSpawner<mouse_position> mouse_move_spawner;
 extern EventSpawner<CharEvent> char_event_spawner;
 extern EventSpawner<MouseWheelEvent> mouse_wheel_event_spawner;
 extern EventSpawner<size> window_resize_event;
+
 extern "C"{
-mouse_position get_mouse_position();
-void init_events();
+  mouse_position get_mouse_position();
+  void SetMousePosition(int x, int y);
+  void init_events();
 }
