@@ -89,6 +89,17 @@ template<class T, int size>
     return out;
   }
 
+  Matrix<T,size> operator*(Vec<T,size>& other){
+    Vec<T,size> out;
+    for(int i = 0;i <size;i++){
+      out[i] = 0;
+      for(int j = 0; j < size;j++){
+	out[i] += operator[](j)[i]*other[i];
+      }
+    }
+    return out;
+  }
+
   T * asPtr(){
     return &(operator[](0)[0]);
   }

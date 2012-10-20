@@ -2,17 +2,20 @@
 #include "../Graphics/Program.hpp"
 #include "../Graphics/VertexBufferObject.hpp"
 #include "../Utils/Timing.h"
-#include "../Math/GenericVector.hpp"
-#include "../Math/Matrix.h"
-#include "../Math/Quat.hpp"
-#include "../Math/CommonMatrixOperations.hpp"
 #include "Polygon.h"
+#include "Camera.h"
 #include <iostream>
 #include <map>
 Program * simpleShader;
 
-
-
+Matrix<float,4> GetObjectTransformation(Vec<double,3> pos, Vec<double,3> rot){
+  Matrix<float,4> o;
+  GenerateObject2World(o.asPtr(),
+		       vec3(pos[0],pos[1],pos[2]),
+		       vec3(rot[0],rot[1],rot[2]),
+		       vec3(1,1,1));
+  return o;
+}
 
 int main(){
   
@@ -37,6 +40,9 @@ int main(){
     
   };
   
+  Camera cam;
+  
+
   initOpenGL(400,400);
   VertexBufferObject vbo(data,8,3,VBODrawType::STATIC);
   simpleShader = new Program(
@@ -57,14 +63,16 @@ int main(){
   GenerateObject2World(smallR.asPtr(),vec3(0,0,0),vec3(0.021,0.022,-0.023),vec3(1.0,1.0,1.0));
  
   Matrix<float,4> o(&iddata2[0][0]);
-  Matrix<float,4> cam = Matrix<float,4>::Eye();
   while(true){
+    cam = cam.rotate(vec(0.0,0.0,0.0));
+    cam = cam.move(vec(0.0,0.0,-0.05));
     it += 0.01;
-    GenerateObject2World(cam.asPtr(),vec3(0,0,-it),vec3(it,0,0),vec3(1,1,1));
+    Matrix<float,4> c = cam.getTransformMatrix();
+    c.print();
     o = smallR*o;
     
-    Matrix<float,4> t =  Translate(o ,0,0,-5);
-    t = cam * t;
+    Matrix<float,4> t =  Translate(o ,0,0,-2);
+    t = c * t;
     simpleShader->setUniformMat4x4("Modelview",t.asPtr());
     ClearBuffer(vec(0.0f,0.0f,0.0f,1.0f));
     p1.Draw(DrawMethod::QUADS);

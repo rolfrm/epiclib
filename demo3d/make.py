@@ -5,4 +5,4 @@ import time
 t = "demo.cpp"
 
 
-pyc.Compile("start","","obj",["octree_demo.cpp","Polygon.cpp"],["epiclib"],0,2,pyc.CPPOX,["../"],["../"])
+pyc.Compile("start","","obj",["octree_demo.cpp","Polygon.cpp","Camera.cpp"],["epiclib"],0,2,pyc.CPPOX,["../"],["../"])
