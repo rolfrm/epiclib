@@ -7,19 +7,19 @@
 
 #ifndef QUAT_HPP_
 #define QUAT_HPP_
-
+#include "Matrix.h"
 class Quaternion{
 public:
-	Quaternion(float ax,float ay,float az,float aw);
+  Quaternion(float ax,float ay,float az,float aw);
+  
+  void operator =(Quaternion);
+  Quaternion operator * (Quaternion);
 
-	void operator =(Quaternion);
-	Quaternion operator * (Quaternion);
+  void normalize();
 
-	void normalize();
-
-	void Write2Matrix(float * MatrixArray);
-
-	void print();
+  void Write2Matrix(float * MatrixArray);
+  Matrix<float,4> AsMatrix();
+  void print();
 
 	float x,y,z,w;
 };

@@ -99,10 +99,23 @@ void GenerateWorld2View(GLfloat * mat,vec3 position,vec3 angle){
 	
 	tot.Write2Matrix(temp);
 
-	mat[0]=temp[0],mat[4]=temp[4],mat[8]=temp[8],mat[12]=position.x*temp[0]+position.y*temp[4]+position.z*temp[8];
-	mat[1]=temp[1],mat[5]=temp[5],mat[9]=temp[9],mat[13]=position.x*temp[1]+position.y*temp[5]+position.z*temp[9];
-	mat[2]=temp[2],mat[6]=temp[6],mat[10]=temp[10],mat[14]=position.x*temp[2]+position.y*temp[6]+position.z*temp[10];
-	mat[3]=0,mat[7]=0,mat[11]=0,mat[15]=1;
+	mat[0]=temp[0];
+	mat[4]=temp[4];
+	mat[8]=temp[8];
+	mat[12]=position.x*temp[0]+position.y*temp[4]+position.z*temp[8];
+	
+	mat[1]=temp[1];
+	mat[5]=temp[5];
+	mat[9]=temp[9];
+	mat[13]=position.x*temp[1]+position.y*temp[5]+position.z*temp[9];
+	mat[2]=temp[2];
+	mat[6]=temp[6];
+	mat[10]=temp[10];
+	mat[14]=position.x*temp[2]+position.y*temp[6]+position.z*temp[10];
+	mat[3]=0;
+	mat[7]=0;
+	mat[11]=0;
+	mat[15]=1;
 
 }
 

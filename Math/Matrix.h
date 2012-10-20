@@ -1,3 +1,4 @@
+#pragma once
 #include "GenericVector.hpp"
 #include<iostream>
 
@@ -75,7 +76,7 @@ template<class T, int size>
     return out;
   }
 
-  Matrix<T,size> operator*(Matrix<T,size>& other){
+  Matrix<T,size> operator*(Matrix<T,size> other){
     Matrix<T,size> out;
     for(int i = 0;i <size;i++){
       for(int j = 0; j < size;j++){
@@ -89,7 +90,7 @@ template<class T, int size>
     return out;
   }
 
-  Matrix<T,size> operator*(Vec<T,size>& other){
+  Matrix<T,size> operator*(Vec<T,size> other){
     Vec<T,size> out;
     for(int i = 0;i <size;i++){
       out[i] = 0;
@@ -107,7 +108,7 @@ template<class T, int size>
   void print(){
      for(int i = 0;i <size;i++){
       for(int j = 0; j < size;j++){
-	std::cout << (*this)[i][j] << " ";
+	std::cout << (*this)[j][i] << " ";
       }
       std::cout << "\n";
      }

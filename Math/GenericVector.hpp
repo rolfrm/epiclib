@@ -21,7 +21,7 @@ public:
   Vec<T,N> operator opr (T other){	\
     Vec<T,N> out;\
     for(int i = 0; i< N;i++){\
-      out.data[i] = other.data[i] opr other;\
+      out.data[i] =data[i] opr other;\
     }\
     return out;\
   }

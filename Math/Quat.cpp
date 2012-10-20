@@ -47,13 +47,17 @@ void Quaternion::print(){
 	std::cout<<"x="<<x<<"\ny="<<y<<"\nz="<<z<<"\nw="<<w<<"\n";
 }
 
+Matrix<float,4> Quaternion::AsMatrix(){
+  Matrix<float,4> out;
+  /*out[0][0] = 1 - 2 * y * y - 2 * z * z;
+  out[0][1] = 2 * x * y + 2 * w * z;
+  out[0][2] = 2 * x * z - 2 * w * y;
+  out[0][3] = 0;*/
+  Write2Matrix(out.asPtr());
+  return out;
+}
 
 void Quaternion::Write2Matrix(float * MatrixArray){
-	/*(*M)<<1-2*Q.y*Q.y-2*Q.z*Q.z<<2*Q.x*Q.y-2*Q.w*Q.z<<2*Q.x*Q.z+2*Q.w*Q.y<<0<<arma::endr
-			<<2*Q.x*Q.y+2*Q.w*Q.z<<1-2*Q.x*Q.x-2*Q.z*Q.z<<2*Q.y*Q.z-2*Q.w*Q.x<<0<<arma::endr
-			<<2*Q.x*Q.z-2*Q.w*Q.y<<2*Q.y*Q.z+2*Q.w*Q.x<<1-2*Q.x*Q.x-2*Q.y*Q.y<<0<<arma::endr
-			<<0<<0<<0<<1;*/
-  
   MatrixArray[0]=1-2*y*y-2*z*z;
   MatrixArray[4]=2*x*y-2*w*z;
   MatrixArray[8]=2*x*z+2*w*y;
