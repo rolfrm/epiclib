@@ -38,6 +38,10 @@ void initOpenGL(GLuint n_width,GLuint n_height,GLfloat n_framerate){
 	glewInit();
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+	
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	//glFrontFace(GL_CW);
 
 
 	ilInit();
@@ -66,6 +70,7 @@ GLint UpdateGraphics(){
 	glBindFramebuffer(GL_FRAMEBUFFER,0);
 	glClear( GL_COLOR_BUFFER_BIT);
 	glClear(GL_STENCIL_BUFFER_BIT);
+	glClear( GL_DEPTH_BUFFER_BIT);
 
 	double temp=glfwGetTime()-last_time;
 	if(inv_framerate-temp>0)
