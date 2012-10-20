@@ -1,4 +1,5 @@
 #include <vector>
+#include <iostream>
 
 #include "../Math/Math.hpp"
 
@@ -10,6 +11,10 @@ public:
 		calcNormalsAndEdges();
 		calcAreaAndInertia();
 		calcBoundingCircle();
+		
+		for(int i=0;i<3;i++){
+			edgeFlags[i]=true;
+		}
 	  
 	}
 	
@@ -18,6 +23,7 @@ public:
 			Vertex[i]=original.Vertex[i];
 			Normal[i]=original.Normal[i];
 			Edge[i]=original.Edge[i];
+			edgeFlags[i]=original.edgeFlags[i];
 		}
 		inertia=original.inertia;
 		area=original.area;
@@ -29,18 +35,21 @@ public:
 	
 	void calcNormalsAndEdges();
 	
+	void calcAreaAndInertia();
+	
 	Vec2 getCenterOfMass();
 	
-	void calcAreaAndInertia();
+	void calcArea();
 	
 	void calcBoundingCircle();
 	
 	Vec2 Vertex[3];
 	Vec2 Normal[3];
 	Vec2 Edge[3];
+	bool edgeFlags[3];
 	Vec2 Center;
 	
-	double inertia,area,radius;
+	double area,radius,inertia;
 };
 
 class Polygon{

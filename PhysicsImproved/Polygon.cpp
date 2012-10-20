@@ -1,4 +1,5 @@
 #include <math.h>
+#include <list>
 
 #include "Polygon.hpp"
 
@@ -43,6 +44,20 @@ void Triangle::calcAreaAndInertia(){
 	area=b*h*0.5;
 }
 
+void Triangle::calcArea()
+{
+  Vec2 vb=Vertex[1]-Vertex[0];
+  Vec2 vb_unit=vb/vb.getNorm2();
+  Vec2 vb_unit_orth=Vec2(-vb_unit.y,vb_unit.x);
+  Vec2 vc=Vertex[2]-Vertex[0];
+
+  double b=vb.getNorm2();
+  double h=fabs(vb_unit_orth*vc);
+  
+  area=b*h*0.5;
+}
+
+
 bool Triangle::pointInside(Vec2 p){
 	Vec2 v0=-Edge[2];
 	Vec2 v1=Edge[0];
@@ -69,12 +84,13 @@ void Triangle::calcBoundingCircle()
   for(int i=0;i<3;i++)
     Center+=Vertex[i];
   
+  
   Center/=3.0;
   
   radius=0;
   
   for(int i=0;i<3;i++){
-    double temp=Vertex[i]-Center;
+    double temp=(Vertex[i]-Center).getNorm2();
     if(temp>radius)
       radius=temp;
   }
@@ -104,10 +120,12 @@ bool Polygon::isEar(std::vector<Vec2> & vertex_list,unsigned int index){
 void Polygon::decompose(){
 	if(!isClockwise())
 		reverseVertex();
-	
+		
+		
+	triangle_mesh.clear();
 	
 	std::vector<Vec2> vertex_list = complete_vertex_vector;
-	triangle_mesh.clear();
+	
 	
 	while(vertex_list.size()>2){
 		unsigned int index=0;
@@ -121,11 +139,14 @@ void Polygon::decompose(){
 		if(index==0)
 	 		prev_i=vertex_list.size()-1;
 	 		
-		triangle_mesh.push_back(Triangle(vertex_list[prev_i],vertex_list[index],vertex_list[next_i]));
+	 	Triangle temp_tri(vertex_list[prev_i],vertex_list[index],vertex_list[next_i]);
+	 		
+		triangle_mesh.push_back(temp_tri);
 		
 		vertex_list.erase(vertex_list.begin()+index);
 	
 	}
+	
 
 }
 
@@ -137,6 +158,7 @@ bool Polygon::isClockwise()
 	
 	Area+=Crossproduct(complete_vertex_vector[complete_vertex_vector.size()-1],complete_vertex_vector[0]);
 // 	Area/=2;
+
 	if(Area<0.0)
 	   return false;
 	
