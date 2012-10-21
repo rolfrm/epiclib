@@ -1,0 +1,63 @@
+Demos:
+-Octree
+-- Cached Octree
+--- World octree abstraction
+---- cached octree voxels
+
+3D model flat shaded
+- rotated
+- phong shaded
+- inserted in octree
+- saved to database
+- UI elements
+      
+- 3d models contained in octree, paged from file
+-- Physics simulation on objects
+--- events bound to 3d models
+---- interaction between objects
+
+classes:
+AbstractOctree
+VoxelOctree: AbstractOctree
+CachedOctree: AbstractOctree
+CachedVoxelOctree: CachedOctree
+
+model: <- VBO
+
+Octree abstraction:
+ Insert object:
+  Inserts object at needed position in tree
+ Optimize tree:
+  Removes unnessesary nodes
+ move relative origin:
+  Moves the relative origin of tree. Keeps LOD
+ 
+ ND / 3d rectagle lookup, exclusive inclusive:
+
+a bit harder. Purposes:
+ 1. Rendering scene
+ 2. Collision detection
+ 3. AI wants to investigate area
+
+ Field of view lookup:
+ 1. rendering of scene.
+
+1: restructure octree to use the generic vectors X
+2: Setup graphics core X
+2: Setup a 3D rendering shader program X
+2: Setup RT / projections. 
+3: Render 3D polygon X
+4: Render GameObject
+4:Test matrix vector mult
+5: Insert gameObject in octreenode
+6: Render gameobjects in octreenode
+7: Make cached octree
+8: Render gameobjects in cached octree
+9: Dynamic load objects in cached octree
+10: Enable events
+11: Move around in 3d
+12: Move around in octree
+13: Make physics for AABBs. 
+14: Test collisions, collision handling
+15: Test collisions in octree
+16: relative positioning

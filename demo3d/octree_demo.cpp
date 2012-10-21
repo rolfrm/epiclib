@@ -42,6 +42,8 @@ public:
     pos.y = 0;
     forward = 0.0;
     backward = 0.0;
+    left = 0.0;
+    right = 0.0;
   }
 
   Camera GetCamera(){
@@ -96,18 +98,10 @@ void print(Vec<T,size> vec){
 using namespace std::chrono;
 #include<list>
 int main(){
+  StopWatch swatch;
+  swatch.Start();
   initOpenGL(400,400);
-  
-  high_resolution_clock::time_point tp = std::chrono::high_resolution_clock::now();
-  Sleep(0.99);
-  high_resolution_clock::time_point tp2 = std::chrono::high_resolution_clock::now();
-  duration<double> time_span = duration_cast<duration<double>>(tp2 - tp);
-  std::cout << "Time: " << time_span.count() << "\n";
-  
-
-  return 0;
-
-
+  std::cout << "Elapsed: " << swatch.ElapsedSeconds() << "\n";
   Matrix<float,4> P = ProjectionMatrix(2,2,5.0,20000.0);
   Camera cam;
   std::list<GameObject *> golist;
@@ -128,10 +122,10 @@ int main(){
     0.0, 0.0, 1.0,  0.0, 1.0, 1.0,  1.0, 1.0, 1.0,  1.0, 0.0, 1.0
   };
 
-  double planeData [] = {-1000,0,-1000, 
-		     -1000,0,1000,
-		     1000,0,1000,
-		     1000,0,-1000};
+  double planeData [] = {-10000,0,-10000, 
+		     -10000,0,10000,
+		     10000,0,10000,
+		     10000,0,-10000};
 
 
   Polygon p1;
@@ -142,6 +136,7 @@ int main(){
   plane.Load(pvbo,4,0);
   
   for(int i = 0; i < 1000;i++){
+    
     float x = (float) ( i % 2);
     float y = (float) ( i / 2);
     float z = (float) ( i / 2);
@@ -156,8 +151,13 @@ int main(){
   GameObject g2 = {plane,vec(0.0f,0.0f,0.0f),vec(0.0f,0.0f,0.0f),DrawMethod::QUADS};
   golist.push_back(&g2);
   float it = 0.0;
-
+  StopWatch swatch2;
   while(true){
+    swatch2.Reset();
+    swatch2.Start();
+    swatch.Reset();
+    swatch.Start();
+  
     ClearBuffer(vec(0.0f,0.0f,0.0f,1.0f));
     simpleShader->setUniform("Color",cos(it*2.1)* 0.5 + 0.5,cos(it*3.1 + 1)* 0.5 + 0.5,cos(it*3.1 + 3.0)*0.5 + 0.5 ,1.0);
 
@@ -170,8 +170,8 @@ int main(){
     cr[3][0] = 0;
     cr[3][1] = 0;
     cr[3][2] = 0;
-    dir = cr * dir;
-    
+    dir = cr * dir * 10;
+    print(dir);
     for(auto list_it = golist.begin(); list_it != golist.end(); list_it++){
       Vec<float,3> p = (*list_it)->pos;
       Vec<float,3> r = (*list_it)->rot;
@@ -192,8 +192,11 @@ int main(){
     
 
     SwapBuffers();
-    Sleep(0.01);
+    
+    Sleep(1/30.0 - swatch.ElapsedSeconds());
     cam = cam.move(vec(dir[0],dir[1],dir[2]));
+    std::cout << " " <<  1.0 / swatch2.ElapsedSeconds() << " fps\n";
+    
   }
 
 }
