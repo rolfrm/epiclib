@@ -76,7 +76,7 @@ def CompileSharedLibrary(exname, src_dir,obj_dir,filelist, libraries, dbg, opt, 
         object_files.append(object_path)
         print ">",i_stripped
         if i not in pycache.keys() or pycache[i] < chtime:
-            call = ("{0} -fPIC -c {1} {2}-O{3} -g{4} -std=c++0x {6} -o {5}").format("clang++", code_path,includes,opt,dbg,object_path,incpath)
+            call = ("{0} -fPIC -c {1} {2}-O{3} -g{4} -std=c++0x {6} -o {5}").format("g++", code_path,includes,opt,dbg,object_path,incpath)
             rmcall ="rm " + object_path
             
             try:

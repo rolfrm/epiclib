@@ -1,6 +1,6 @@
 #pragma once
 #include "GenericVector.hpp"
-
+#include<algorithm>
 template<class T>
 class MatrixBase{
  public:
