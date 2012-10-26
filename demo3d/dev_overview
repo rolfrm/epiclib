@@ -42,6 +42,20 @@ a bit harder. Purposes:
  Field of view lookup:
  1. rendering of scene.
 
+
+Rendering: 
+N VBOs ad gangen -> 1 VBO collection
+N textures -> 1 Texture collection
+1 Shader
+1 Framebuffer
+
+N VBO collections
+1 Texture collection
+1 shader
+1 framebuffer
+-> Model
+
+
 1: restructure octree to use the generic vectors X
 2: Setup graphics core X
 2: Setup a 3D rendering shader program X
@@ -49,6 +63,9 @@ a bit harder. Purposes:
 3: Render 3D polygon X
 4: Render GameObject
 4:Test matrix vector mult
+4: Implement rendering system
+4: Styles - styles kan tegne en polygon
+4: Shared pointers
 5: Insert gameObject in octreenode
 6: Render gameobjects in octreenode
 7: Make cached octree

@@ -108,7 +108,7 @@ def CompileSharedLibrary(exname, src_dir,obj_dir,filelist, libraries, dbg, opt, 
 
     if(libraries != ""):
         link_args += " " + libraries
-    link_call = "clang++ -shared {0} -O{1} -g{2} {4} -std=c++0x -o {3}".format(link_args,opt,dbg,exname,link_inc)
+    link_call = "{5} -shared {0} -O{1} -g{2} {4} -std=c++0x -o {3}".format(link_args,opt,dbg,exname,link_inc,compiler)
     print link_call
     do_call(link_call)
 
@@ -212,7 +212,7 @@ def Compile(exname, src_dir,obj_dir,filelist, libraries, dbg, opt, cppv=CPPOX, l
 
     if(libraries != ""):
         link_args += " " + libraries
-    link_call = "clang++ {0} -O{1} -g{2} {4} -std=c++0x -o {3}".format(link_args,opt,dbg,exname,link_inc)
+    link_call = "{5} {0} -O{1} -g{2} {4} -std=c++0x -o {3}".format(link_args,opt,dbg,exname,link_inc,compiler)
     print link_call
     do_call(link_call)
 
