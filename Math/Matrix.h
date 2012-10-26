@@ -103,6 +103,17 @@ template<class T, int size>
   T * asPtr(){
     return &(operator[](0)[0]);
   }
+  
+  Matrix<T,size> transpose(){
+  	Matrix<T,size> trans;
+  	for(int i=0;i<size;i++){
+  		for(int j=0;j<size;j++){
+  			trans[i][j]=trans[j][i];
+  		}	
+  	}
+  	return trans;
+  
+  }
 
 
 };

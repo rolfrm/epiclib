@@ -6,6 +6,13 @@ public:
   T & operator[](unsigned int i){
     return data[i];
   }
+  
+  Vec<T,N> operator -(){
+  	Vec<T,N> temp;
+  	for(int i=0;i<N;i++)
+  		temp[i]=data[i];
+  	return temp;
+  }
 
 
 #define other_vector_operator(opr) \
