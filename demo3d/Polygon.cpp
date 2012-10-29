@@ -19,7 +19,6 @@ void Polygon::Draw(DrawMethod drawMethod){
   if(size == -1){
     return;
   }
-  
   for(auto it = bufferObjects.begin(); it != bufferObjects.end();it++){
     VertexBufferObject & vbo = it->second;
     int bindloc = it->first;
@@ -29,7 +28,7 @@ void Polygon::Draw(DrawMethod drawMethod){
   
 }
 
-void Texgon::Load(Texture2D tex, int index){
+void Texgon::Load(Texture tex, int index){
   textures[index] = tex;
 }
 
@@ -40,7 +39,7 @@ void Texgon::Remove(int index){
 void Texgon::Bind(){
 
   for(auto it = textures.begin(); it != textures.end();it++){
-    Texture2D tex = it->second;
-    tex.BindTexture(it->first);
+    Texture tex = it->second;
+    tex.Bind(it->first);
   }
 }

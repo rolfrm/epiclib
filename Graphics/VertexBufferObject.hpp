@@ -8,16 +8,29 @@
 #ifndef VERTEXBUFFEROBJECT_HPP_
 #define VERTEXBUFFEROBJECT_HPP_
 #include "oglCppWrap.h"
-enum class VBODrawType{STATIC = 0,DYNAMIC = 1,STREAM = 2};
-enum class DrawMethod{POINTS = 0, TRIANGLES = 1, QUADS = 2, TRIANGLE_STRIP = 3, LINE_LOOP=4};
+#include "../Utils/SharedPtr.h"
+enum class VBODrawType{Static = 0,Dynamic = 1,Stream = 2};
+enum class DrawMethod{Points = 0, Triangles = 1, Quads = 2, TriangleStrip = 3, LineLoop=4};
+
+class _bufferObject{
+public:
+  unsigned int gl_ref;
+  
+  _bufferObject(){
+    gl_ref = 999999;
+  }
+  _bufferObject(int _gl_ref){
+    gl_ref = _gl_ref;
+  }
+  void Dispose();
+};
 
 class VertexBufferObject{
-
+  SharedPtr<_bufferObject> bufferObject;
   void genVBO(void * data, int totalSize, int dim, int typeidx, VBODrawType drawtype);
 
 public:
-  VertexBufferObject(float * data,unsigned int vertex_count, unsigned int vertex_dimension,unsigned int drawType);
-  VertexBufferObject(const void * data,unsigned int data_size,unsigned int drawType);
+
 
   template<class T>
   VertexBufferObject(T * data, unsigned int vertex_count,int dim, VBODrawType drawType){
@@ -30,31 +43,11 @@ public:
 
   VertexBufferObject();
 
-  VertexBufferObject(const VertexBufferObject & orginal);
-  ~VertexBufferObject();
-
-  void BindBuffer(unsigned int index=0);
-  unsigned int * count;
-  unsigned int reference,n_vertex,dim_vertex, dataType;
+  void BindBuffer(unsigned int index);
+  unsigned int n_vertex,dim_vertex, dataType;
 
   static void DrawBuffers(DrawMethod drawMethod,int nof);
-  /*static void DrawBuffers(DrawMethod drawMethod,int nof,VertexBufferObject &v1){
-    v1.BindBuffer(0);
-    DrawBuffers(drawMethod,nof);
-  }
-  static void DrawBuffers(DrawMethod drawMethod,int nof,VertexBufferObject &v1, VertexBufferObject &v2){
-    v2.BindBuffer(1);
-    DrawBuffers(drawMethod,nof,v1);
-  }
-  static void DrawBuffers(DrawMethod drawMethod,int nof,VertexBufferObject &v1, VertexBufferObject &v2, VertexBufferObject &v3){
-    v3.BindBuffer(2);
-    DrawBuffers(drawMethod,nof,v1,v2);
-  }
-  static void DrawBuffers(DrawMethod drawMethod,int nof,VertexBufferObject &v1, VertexBufferObject &v2, VertexBufferObject &v3,VertexBufferObject &v4){
-    v4.BindBuffer(3);
-    DrawBuffers(drawMethod,nof,v1,v2,v3);
-    }*/
-
+ 
 };
 
 

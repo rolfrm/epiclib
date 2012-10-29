@@ -2,7 +2,7 @@
 import os
 import pickle
 import subprocess as sp
-CPPOX = "-std=c++0x "
+CPPOX = "-std=c++11 "
 CPPSD = ""
 compiler = "g++"
 def Clean(exname):
@@ -76,7 +76,7 @@ def CompileSharedLibrary(exname, src_dir,obj_dir,filelist, libraries, dbg, opt, 
         object_files.append(object_path)
         print ">",i_stripped
         if i not in pycache.keys() or pycache[i] < chtime:
-            call = ("{0} -fPIC -c {1} {2}-O{3} -g{4} -std=c++0x {6} -o {5}").format(compiler, code_path,includes,opt,dbg,object_path,incpath)
+            call = ("{0} -fPIC -c {1} {2}-O{3} -g{4} -std=c++11 {6} -o {5}").format(compiler, code_path,includes,opt,dbg,object_path,incpath)
             rmcall ="rm " + object_path
             
             try:
@@ -177,7 +177,7 @@ def Compile(exname, src_dir,obj_dir,filelist, libraries, dbg, opt, cppv=CPPOX, l
         object_files.append(object_path)
         print ">",i_stripped
         if i not in pycache.keys() or pycache[i] < chtime:
-            call = ("{0} -c {1} {2}-O{3} -g{4} {6} -o {5}").format(compiler, code_path,includes,opt,dbg,object_path,incpath)
+            call = ("{0} -c {1} {2}-O{3} -g{4} {6} -o {5} {7}").format(compiler, code_path,includes,opt,dbg,object_path,incpath,cppv)
             rmcall ="rm " + object_path
             
             try:
@@ -211,7 +211,7 @@ def Compile(exname, src_dir,obj_dir,filelist, libraries, dbg, opt, cppv=CPPOX, l
 
     if(libraries != ""):
         link_args += " " + libraries
-    link_call = compiler + " {0} -O{1} -g{2} {4} -std=c++0x -o {3}".format(link_args,opt,dbg,exname,link_inc)
+    link_call = compiler + " {0} -O{1} -g{2} {4} -std=c++11 -o {3}".format(link_args,opt,dbg,exname,link_inc)
     print link_call
     do_call(link_call)
 

@@ -8,27 +8,33 @@
 #ifndef PROGRAM_HPP_
 #define PROGRAM_HPP_
 
-#include <GL/gl.h>
 #include <string>
 #include "../Math/GenericVector.hpp"
+#include "../Utils/SharedPtr.h"
 
-enum class ShaderType: int{VERTEX = 0, FRAGMENT = 1, GEOMETRY=2};
+enum class ShaderType: int{Vertex = 0, Fragment = 1, Geometry = 2};
+
+class ShaderObject{
+  int gl_ref;
+public:
+  ShaderObject(int gl_ref);
+  ShaderObject();
+  int & GetGLRef();
+  void Dispose();
+};
 
 class Shader{
 public:
-	Shader(const char * shader_str,GLenum type);
-	Shader(const Shader & original);
-  Shader(int reference, GLenum type);
-  
-	~Shader();
-  static Shader FromString(const char * shaderAsString,ShaderType shaderType);
+  SharedPtr<ShaderObject> glReference;
+  Shader(const char * shader_str,ShaderType type);
   static Shader FromFile(const char * shaderPath, ShaderType shaderType);
-	GLuint * count,reference;
-	GLenum type;
+  ShaderType type;
 };
 
 
 class Program{
+  void init(Shader vertexShader, Shader fragmentShader);
+  
 public:
 	Program(Shader vertex_shader,Shader fragment_shader);
 	Program(const char * path_vertex_shader,const char * path_fragment_shader);

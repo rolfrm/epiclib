@@ -1,6 +1,7 @@
 #pragma once
 #include "../Graphics/VertexBufferObject.hpp"
 #include "../Graphics/Texture.hpp"
+#include "../Utils/SharedPtr.h"
 #include <map>
 /*Container class for multiple vbos
   Buffercollection?
@@ -18,10 +19,10 @@ class Polygon{
 
 class Texgon{
   
-  std::map<int, Texture2D> textures;
+  std::map<int, Texture> textures;
   public:
-  void Load(Texture2D tex, int index);
-  void Remove(int index);
+  void Load(Texture tex, int index);
+  void Remove(int indexx);
   void Bind();
 };
 

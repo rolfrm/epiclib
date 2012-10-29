@@ -100,7 +100,7 @@ template<class T, int size>
     return out;
   }
 
-  T * asPtr(){
+  T * AsPtr(){
     return &(operator[](0)[0]);
   }
 
