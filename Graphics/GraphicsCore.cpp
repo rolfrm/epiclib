@@ -9,7 +9,7 @@
 
 
 
-#include "../Math/Quat.hpp"
+#include "../Math/Quat.h"
 
 GLuint Width,Height;
 GLfloat framerate,inv_framerate;
@@ -40,9 +40,6 @@ void initOpenGL(GLuint n_width,GLuint n_height,GLfloat n_framerate){
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 	
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-	//glFrontFace(GL_CW);
-
 
 	ilInit();
 

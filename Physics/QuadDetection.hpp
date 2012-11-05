@@ -8,7 +8,7 @@
 #ifndef QUADDETECTION_HPP_
 #define QUADDETECTION_HPP_
 
-#include "Math/Math.hpp"
+#include "Math/Math.h"
 #include <vector>
 #include <list>
 

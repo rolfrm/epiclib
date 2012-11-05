@@ -1,8 +1,8 @@
 #pragma once
-#include "../Math/GenericVector.hpp"
+#include "../Math/GenericVector.h"
 #include "../Math/Matrix.h"
-#include "../Math/Quat.hpp"
-#include "../Math/CommonMatrixOperations.hpp"
+#include "../Math/Quat.h"
+#include "../Math/CommonMatrixOperations.h"
 
 class Camera{
 

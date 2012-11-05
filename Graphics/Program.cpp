@@ -28,7 +28,6 @@ int & ShaderObject::GetGLRef(){
 
 void ShaderObject::Dispose(){
   if(gl_ref != -1){
-    std::cout << "Disposing of shader\n";
     glDeleteShader(gl_ref);
   }
 }
@@ -114,7 +113,6 @@ Program::Program(const Program & original){
 Program::~Program(){
   *count-=1;
   if(count==0){
-    std::cout << "Disposing of shader program\n";
     delete count;
     
     glDeleteProgram(reference);

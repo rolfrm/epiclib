@@ -11,6 +11,11 @@ void Polygon::Load(VertexBufferObject vbo, int _size, int bindPos){
   bufferObjects[bindPos] = vbo;
 }
 
+void Polygon::Load(VertexBufferObject vbo, int bindPos){
+  Load(vbo,vbo.n_vertex,bindPos);
+}
+
+
 VertexBufferObject Polygon::Get(int index){
   return bufferObjects[index];
 }

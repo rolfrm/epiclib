@@ -47,6 +47,7 @@ class SharedPtr{
     ptr = _ref;
     ref = new int(1);
   }
+
   SharedPtr(){
     ref = new int(1);
   }
@@ -55,8 +56,11 @@ class SharedPtr{
     return ptr;
   }
 
-  T & Get(){
-    
+  bool operator==(const SharedPtr other) const{
+    return other.ref == ref;
+  }
+
+  T & Get(){    
     return ptr;
   }
 
@@ -127,6 +131,11 @@ class SharedPtr<T *>{
     ptr = NULL;
     ref = NULL;
   }
+
+  bool operator==(const SharedPtr other) const{
+    return other.ref == ref;
+  }
+
 
   T * operator*(){
     if(ref == NULL || *ref == 0){
@@ -199,7 +208,9 @@ class SharedObject{
     ref = new int(1);
   }
   
-
+  bool operator==(const SharedPtr<T> other) const{
+    return other.ref == ref;
+  }
   /*T operator=(const T other){ 
    countDown();
     ptr = other.ptr;

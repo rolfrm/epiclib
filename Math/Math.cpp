@@ -5,7 +5,7 @@
  *      Author: sebastian
  */
 
-#include "Math.hpp"
+#include "Math.h"
 #include <math.h>
 #include <iostream>
 #include <stdlib.h>

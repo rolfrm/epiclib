@@ -13,6 +13,7 @@ class Polygon{
  public:
   Polygon();
   void Load(VertexBufferObject vbo, int _size, int bindPos);
+  void Load(VBO vbo, int bindPos);
   VertexBufferObject Get(int index);
   void Draw(DrawMethod drawMethod);
 };

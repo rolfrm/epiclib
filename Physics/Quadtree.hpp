@@ -11,7 +11,7 @@
 #define MAX_DEPTH 7
 
 #include <vector>
-#include "Math/Math.hpp"
+#include "Math/Math.h"
 
 
 class Polygon;

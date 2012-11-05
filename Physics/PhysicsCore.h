@@ -7,7 +7,7 @@
 
 #include <list>
 #include <vector>
-#include "Math/Math.hpp"
+#include "Math/Math.h"
 
 #ifndef PHYSICSCORE_H_
 #define PHYSICSCORE_H_

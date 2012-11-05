@@ -34,8 +34,17 @@ enum class PixelFormat{
     RGBA16F = 5
 };
 
+
 class Texture{
-  SharedPtr<unsigned int *> gl_reference;
+  class TextureObject{
+    
+  public:
+    int glReference;
+    TextureObject(int glRef = -1);
+    void Dispose();
+    
+  };
+  SharedPtr<TextureObject> textureObject;
 public:
   int width, height, n_tex; 
   Texture(void * data, int width, int height,
@@ -51,7 +60,6 @@ public:
 			  TextureDataType dataType = TextureDataType::UnsignedByte);
 
   Texture();
-  ~Texture();
   
   void Bind(int channel);
   void Unbind(int channel);

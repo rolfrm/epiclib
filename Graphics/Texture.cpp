@@ -48,28 +48,22 @@ Texture::Texture(void * data, int width, int height,
 	       0, pixelFormatTable[(int)pixelFormat],
 	       dataTypeTable[(int)dataType],data );
 
-  width = ilGetInteger(IL_IMAGE_WIDTH);
-  height= ilGetInteger(IL_IMAGE_HEIGHT);
-  
+  this->width = width;
+  this->height = height;
   glBindTexture(GL_TEXTURE_2D, 0);
   
-  gl_reference = new unsigned int(glRef);
+  textureObject = TextureObject(glRef);
 }
 
 #include <iostream>
-Texture::~Texture(){
-  if(gl_reference.GetRefCount() == 1){
-    std::cout << "Deleting texture.. \n";
-    glDeleteTextures(n_tex,(*gl_reference));
-  }
-}
+
 
 void Texture::Bind(int channel){
-  if(*gl_reference == NULL){
+  if((*textureObject).glReference == -1){
     return;
   }
   glActiveTexture(GL_TEXTURE0+channel);
-  glBindTexture(GL_TEXTURE_2D, (*gl_reference)[0]);
+  glBindTexture(GL_TEXTURE_2D, (unsigned int) (*textureObject).glReference);
 }
 
 
@@ -82,7 +76,9 @@ void Texture::Write2Texture(int w,int h,int x,int y,
 			    PixelFormat format,
 			    TextureDataType type,void * data){
   Bind(0);
-  glTexSubImage2D(GL_TEXTURE_2D,0,x,y,w,h,pixelFormatTable[(int)format],dataTypeTable[(int)type],data);
+  glTexSubImage2D(GL_TEXTURE_2D,0,
+		  x,y,w,h,pixelFormatTable[(int)format],
+		  dataTypeTable[(int)type],data);
 }
 
 Texture Texture::FromFile(std::string path,
@@ -105,8 +101,22 @@ Texture Texture::FromFile(std::string path,
   void * data = ilGetData();
   int width = ilGetInteger(IL_IMAGE_WIDTH);
   int height = ilGetInteger(IL_IMAGE_HEIGHT);
-  Texture tex = Texture(data,width,height, interpolation,wrap,pixelFormat,dataType);
+  Texture tex = Texture(data,width,height, 
+			interpolation,wrap,
+			pixelFormat,dataType);
   ilDeleteImage(texid);
   
   return tex;
+}
+
+Texture::TextureObject::TextureObject(int glRef){
+  glReference = glRef;
+}
+
+void Texture::TextureObject::Dispose(){
+  if(glReference != -1){
+    std::cout << "Deleting texture.. \n";
+    unsigned int ref = glReference;
+    glDeleteTextures(1,&ref);
+  }
 }

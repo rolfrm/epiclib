@@ -27,8 +27,6 @@ void SetMousePosition(int x, int y){
 #include <iostream>
 int last_wheel_pos = 0;
 void GLFWCALL mouse_wheel_callback(int mwpos){
-  //std::cout << mwpos << "\n";
-  
   MouseWheelEvent mEv(mwpos, mwpos - last_wheel_pos);
   last_wheel_pos = mwpos;
   mouse_wheel_event_spawner.spawn_event(mEv);
@@ -40,7 +38,6 @@ void GLFWCALL keycallback( int key, int action ){
 }
 #include<iostream>
 void GLFWCALL charcallback( int character, int action ){
-  //std::cout << character << " " << action << "\n";
   CharEvent newKeyEv(character,action==1);
   char_event_spawner.spawn_event(newKeyEv);
 }
@@ -51,7 +48,6 @@ void GLFWCALL window_size_callback(int width,int height){
 mouse_position global_mpos;
 
 void GLFWCALL mouse_move_callback(int x, int y){
-  //std::cout << x << " " << y << "\n";
   global_mpos.x = x;
   global_mpos.y = y;
   mouse_move_spawner.spawn_event(global_mpos);

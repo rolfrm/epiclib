@@ -9,7 +9,7 @@
 #define PROGRAM_HPP_
 
 #include <string>
-#include "../Math/GenericVector.hpp"
+#include "../Math/GenericVector.h"
 #include "../Utils/SharedPtr.h"
 
 enum class ShaderType: int{Vertex = 0, Fragment = 1, Geometry = 2};
@@ -41,8 +41,8 @@ public:
 	Program(const Program & original);
 	~Program();
 
-	GLint getCurrentProgram();
-	GLuint getUniformLocation(const char * name);
+	int getCurrentProgram();
+	unsigned int getUniformLocation(const char * name);
 
 	void setUniform(const char * name,float f1);
 	void setUniform(const char * name,float f1,float f2);
@@ -80,10 +80,10 @@ public:
   void setUniformMat3x3(const char * name,float * mat);
   void setUniformMat4x4(const char * name,float * mat);
 
-  void BindAttribute(std::string name,GLuint location);
+  void BindAttribute(std::string name,unsigned int location);
   void UseProgram();
   void Link();
-  GLuint * count,reference;
+  unsigned int * count,reference;
 };
 
 
