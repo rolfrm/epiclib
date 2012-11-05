@@ -18,6 +18,12 @@ public:
     return out;
   }
 
+  Vec<T,N> operator -(){
+    Vec<T,N> temp;
+    for(int i=0;i<N;i++)
+      temp[i]= -data[i];
+    return temp;
+  }
 
 #define other_vector_operator(opr) \
   Vec<T,N> operator opr (Vec<T,N> other){	\

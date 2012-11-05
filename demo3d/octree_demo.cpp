@@ -179,7 +179,6 @@ int main_test(){
     flat.SetCamera(ev.GetCamera().getTransformMatrix());   
     world.PhysicsUpdate(vec(0.0,0.0,0.0),500,0.1);
     auto goList = world.GetNearbyObjects(vec(0.0,0.0,0.0),500.0);
-    std::cout << goList.size() << "\n";
     for(auto go : goList){
       go.Get()->aabb.mass.ApplyImpulse(vec(0.0,0.0,0.5));
       go.Get()->DoUpdate(world);
