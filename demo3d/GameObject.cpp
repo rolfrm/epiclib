@@ -5,7 +5,7 @@
 GameObject::GameObject():
   Tetra(Matrix<float,4>::Eye(),Polygon(),Texgon()), 
   aabb(vec(0.0,0.0,0.0),vec(1.0,1.0,1.0),1.0){
-
+  GravityBound = true;
 }
 
 void GameObject::DoUpdate(World & world){

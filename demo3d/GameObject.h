@@ -11,7 +11,8 @@ public:
   GameObject();
   Tetragon Tetra;
   AABBMass aabb;
-  
+  bool GravityBound;
+  bool Movable;
   void DoUpdate(World & world);
   void Draw(Shader3D & shader);
  protected:

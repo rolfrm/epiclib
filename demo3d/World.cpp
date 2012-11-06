@@ -30,8 +30,14 @@ GameObjectBase World::Find(GameObject & gameObject){
 
 void World::PhysicsUpdate(Vec<double,3> pos, double radius, double dt){
   std::list<GameObjectBase> golist = GetNearbyObjects(pos,radius);
+  
+  double gravity = 0.1;//9.8;
+
   std::list<AABBMass> masses;
   for(GameObjectBase gob : golist){
+    if(gob.Get()->GravityBound){
+      gob.Get()->aabb.mass.ApplyImpulse(vec(0.0,-gravity,0.0));
+    }
     masses.push_back(gob.Get()->aabb);
   }
   

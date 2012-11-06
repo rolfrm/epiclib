@@ -28,15 +28,25 @@ class Context{
 public:
   Context(){
     float funnyShapeData[] = {
-      -1.0, -1.0, -1.0,  1.0, -1.0, -1.0,  1.0, 1.0, -1.0,  
-      -1.0, 1.0, -1.0, -1.0, -1.0, 1.0,  -1.0, 1.0, 1.0, 
-      1.0, 1.0, 1.0,  1.0, -1.0, 1.0
+      -1.0, -1.0, -1.0,  
+      1.0, -1.0, -1.0,  
+      1.0, 1.0, -1.0,  
+      -1.0, 1.0, -1.0, 
+      -1.0, -1.0, 1.0,  
+      -1.0, 1.0, 1.0, 
+      1.0, 1.0, 1.0,  
+      1.0, -1.0, 1.0
     };
     float planeData[] = {
-      -1.0,0,-1.0, -1.0,0,1.0,
-      1.0,0,1.0, 1.0,0,-1.0 };
-    float plane2DData[] = {-1.0,-1.0, 1.0,-1.0,
-			 1.0,1.0, -1.0,1.0};
+      -1.0,0,-1.0, 
+      -1.0,0,1.0,
+      1.0,0,1.0, 
+      1.0,0,-1.0 };
+    float plane2DData[] = {
+      -1.0,-1.0, 
+      1.0,-1.0,
+      1.0,1.0, 
+      -1.0,1.0};
     float boxData[] = {
       -1.0, -1.0, -1.0,
       1.0, -1.0, -1.0,  
@@ -77,9 +87,9 @@ public:
       double x = sin(za);
       double y = cos(za)*cos(xa);
       double z = sin(xa);
-      stars[i] = x*2000;
-      stars[i+1] = y*2000;
-      stars[i+2] = z*2000;
+      stars[i] = x*100000;
+      stars[i+1] = y*100000;
+      stars[i+2] = z*100000;
     }
 
     
@@ -124,8 +134,9 @@ public:
 
 protected:
   void Update(World & world){
+    double impulse = -16.0;
+    
     Tetragon * tetra = &Tetra;
-    aabb.mass.ApplyImpulse(vec(0.0,1.0,0.0));
  
   }
 
@@ -137,6 +148,8 @@ int main_test(){
   StopWatch swatch;
   World world;
   CameraControl ev;
+  glPointSize(2.0);
+  ev.cam.position = vec(0.0f,0.0f,25.0f);
   mouse_move_spawner.register_listener(&ev);
   key_event_handler.register_listener(&ev);
   
@@ -154,22 +167,33 @@ int main_test(){
   go->aabb.pos[0] += 10;
   
   go->aabb.pos[1] += 10;
+  go->GravityBound = false;
   world.InsertObject(go);
   
   go = new GameObjectTest(context);
   go->aabb.pos[0] += 10;
+  
   world.InsertObject(go);
   
   VBO stars = context.Stars;
   while(true){
+    auto goList = world.GetNearbyObjects(vec(0.0,0.0,0.0),5000000.0);
+    world.PhysicsUpdate(vec(0.0,0.0,0.0),500000,0.1);
+
+    for(auto go : goList){
+      go.Get()->DoUpdate(world);
+    }
+
+    //ev.cam.position = go->aabb.pos.As<float>() + vec(0.0f,-2.0f,0.0f);
+    print(go->aabb.pos);
     swatch.Reset();
     swatch.Start();
     ClearBuffer(vec(0.0f,0.0f,0.0f,1.0f));
     Matrix<float,4> cameraMatrix = ev.GetCamera().getTransformMatrix();
-    cameraMatrix[3][0] = 0;
+    /*cameraMatrix[3][0] = 0;
     cameraMatrix[3][1] = 0;
     cameraMatrix[3][2] = 0;
-
+    */
     flat.SetCamera(cameraMatrix);   
     
     flat.SetModelView(Matrix<float,4>::Eye());
@@ -177,12 +201,7 @@ int main_test(){
     stars.BindBuffer(0);
     VertexBufferObject::DrawBuffers(DrawMethod::Points,100);
     flat.SetCamera(ev.GetCamera().getTransformMatrix());   
-    world.PhysicsUpdate(vec(0.0,0.0,0.0),500,0.1);
-    auto goList = world.GetNearbyObjects(vec(0.0,0.0,0.0),500.0);
-    for(auto go : goList){
-      go.Get()->aabb.mass.ApplyImpulse(vec(0.0,0.0,0.5));
-      go.Get()->DoUpdate(world);
-    }
+    goList = world.GetNearbyObjects(vec(0.0,0.0,0.0),5000000.0);
     for(auto go: goList){
       go.Get()->Draw(flat);
     }
