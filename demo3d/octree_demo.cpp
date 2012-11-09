@@ -134,7 +134,6 @@ public:
 
 protected:
   void Update(World & world){
-    double impulse = -16.0;
     
     Tetragon * tetra = &Tetra;
  
@@ -144,6 +143,22 @@ protected:
 
 
 int main_test(){
+  AABBPhysics abp;
+  AABBMass a1(vec(0.0,0.0,0.0),vec(3.0,3.0,3.0),0.01);
+  AABBMass a2(vec(2.9,2.9,2.9),vec(1.0,1.0,1.0),2.0);
+  a2.mass.vel[0] = 3.0;
+  a1.mass.vel[0] = 2.0;
+  print(a1.mass.vel);
+  print(a2.mass.vel);
+  
+  std::cout << abp.CheckHandleCollision(a1,a2) << "\n";
+  
+  print(a1.mass.vel);
+  print(a2.mass.vel);
+  std::cout << abp.CheckHandleCollision(a1,a2) << "\n";
+  print(a1.mass.vel);
+  print(a2.mass.vel);
+  return 0;
   Context context;
   StopWatch swatch;
   World world;
