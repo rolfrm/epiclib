@@ -8,35 +8,41 @@
 #ifndef PROGRAM_HPP_
 #define PROGRAM_HPP_
 
-#include <GL/gl.h>
 #include <string>
-#include "../Math/GenericVector.hpp"
+#include "../Math/GenericVector.h"
+#include "../Utils/SharedPtr.h"
 
-enum class ShaderType: int{VERTEX = 0, FRAGMENT = 1, GEOMETRY=2};
+enum class ShaderType: int{Vertex = 0, Fragment = 1, Geometry = 2};
+
+class ShaderObject{
+  int gl_ref;
+public:
+  ShaderObject(int gl_ref);
+  ShaderObject();
+  int & GetGLRef();
+  void Dispose();
+};
 
 class Shader{
 public:
-	Shader(const char * shader_str,GLenum type);
-	Shader(const Shader & original);
-  Shader(int reference, GLenum type);
-  
-	~Shader();
-  static Shader FromString(const char * shaderAsString,ShaderType shaderType);
+  SharedPtr<ShaderObject> glReference;
+  Shader(const char * shader_str,ShaderType type);
   static Shader FromFile(const char * shaderPath, ShaderType shaderType);
-	GLuint * count,reference;
-	GLenum type;
+  ShaderType type;
 };
 
 
 class Program{
+  void init(Shader vertexShader, Shader fragmentShader);
+  
 public:
 	Program(Shader vertex_shader,Shader fragment_shader);
 	Program(const char * path_vertex_shader,const char * path_fragment_shader);
 	Program(const Program & original);
 	~Program();
 
-	GLint getCurrentProgram();
-	GLuint getUniformLocation(const char * name);
+	int getCurrentProgram();
+	unsigned int getUniformLocation(const char * name);
 
 	void setUniform(const char * name,float f1);
 	void setUniform(const char * name,float f1,float f2);
@@ -74,10 +80,10 @@ public:
   void setUniformMat3x3(const char * name,float * mat);
   void setUniformMat4x4(const char * name,float * mat);
 
-  void BindAttribute(std::string name,GLuint location);
+  void BindAttribute(std::string name,unsigned int location);
   void UseProgram();
   void Link();
-  GLuint * count,reference;
+  unsigned int * count,reference;
 };
 
 

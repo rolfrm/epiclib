@@ -8,27 +8,63 @@
 #ifndef TEXTURE_HPP_
 #define TEXTURE_HPP_
 
-#include <GL/gl.h>
 #include <string>
+#include "../Utils/SharedPtr.h"
 
-
-class Texture2D{
-public:
-	Texture2D(std::string path,GLint interpolation=GL_NEAREST,GLint wrap=GL_CLAMP_TO_EDGE);
-	Texture2D(GLuint width,GLuint height,GLuint texture_format,GLuint copies=1,
-			GLuint interpolation=GL_NEAREST,GLuint wrap=GL_CLAMP_TO_EDGE,
-			GLuint data_type=GL_UNSIGNED_BYTE,void * data = 0,GLuint data_format=GL_RGBA);
-	Texture2D(const Texture2D & original);
-	~Texture2D();
-
-	void BindTexture(GLuint channel=0,GLuint texture=0);
-	void UnbindTexture(GLuint channel=0);
-	void Write2Texture(GLuint width,GLuint height,GLuint x,GLuint y,GLuint format,GLuint type,void * data);
-
-	GLuint * reference,width,height,* count,n_tex;
-
+enum class Interpolation{
+  Nearest=0,Linear=1
 };
 
+enum class TextureWrap{
+  ClampToEdge = 0,
+    Repeat = 1,
+    Mirror = 2
+};
+
+enum class TextureDataType{
+  UnsignedByte = 0
+};
+
+enum class PixelFormat{
+  RGBA = 0,
+    RGB = 1,
+    Grey = 2,
+    Grey16 = 3,
+    RGBA32F = 4,
+    RGBA16F = 5
+};
+
+
+class Texture{
+  class TextureObject{
+    
+  public:
+    int glReference;
+    TextureObject(int glRef = -1);
+    void Dispose();
+    
+  };
+  SharedPtr<TextureObject> textureObject;
+public:
+  int width, height, n_tex; 
+  Texture(void * data, int width, int height,
+	    Interpolation interpolation = Interpolation::Linear,
+	    TextureWrap wrap = TextureWrap::Repeat, 
+	    PixelFormat pixelFormat = PixelFormat::RGBA,  
+	    TextureDataType dataType = TextureDataType::UnsignedByte);
+
+  static Texture FromFile(std::string path,
+			  Interpolation interpolation = Interpolation::Linear,
+			  TextureWrap wrap = TextureWrap::Repeat, 
+			  PixelFormat pixelFormat = PixelFormat::RGBA,  
+			  TextureDataType dataType = TextureDataType::UnsignedByte);
+
+  Texture();
+  
+  void Bind(int channel);
+  void Unbind(int channel);
+  void Write2Texture(int width,int height,int x,int y,PixelFormat pixelFormat, TextureDataType type,void * data);  
+};
 
 
 #endif /* TEXTURE_HPP_ */

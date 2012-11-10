@@ -5,97 +5,118 @@
  *      Author: sebastian
  */
 
+#include <GL/gl.h>
+#include <string>
+#include "../Utils/SharedPtr.h"
 #include "Texture.hpp"
 #include <IL/il.h>
+
+Texture::Texture(){
+
+}
+
+unsigned int interpolationTable [] = {GL_NEAREST, GL_LINEAR};
+unsigned int wrapTable [] =  {GL_CLAMP_TO_EDGE, GL_REPEAT};
+unsigned int dataTypeTable [] = {GL_UNSIGNED_BYTE};
+unsigned int pixelFormatTable[] = {GL_RGBA, GL_RGB, GL_LUMINANCE, 
+				   GL_LUMINANCE16, GL_RGBA32F, GL_RGBA16F};
+unsigned int ilDataTypeTable [] = {IL_UNSIGNED_BYTE};
+unsigned int ilPixelFormatTable[] = {IL_RGBA, IL_RGB, IL_LUMINANCE, 
+				     IL_LUMINANCE, IL_RGBA, IL_RGBA};
+unsigned int bytesPerPixel [] = {4,3,1,2,4,4};
+
+Texture::Texture(void * data, int width, int height,
+		     Interpolation interpolation,
+		     TextureWrap wrap, 
+		     PixelFormat pixelFormat,  
+		     TextureDataType dataType){
+  unsigned int glRef;
+  this->width = width;
+  this->height = height;
+  glGenTextures(1,&glRef);
+  glBindTexture(GL_TEXTURE_2D, glRef);
+  
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
+		  interpolationTable[(int)interpolation]);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+		  interpolationTable[(int)interpolation]);
+  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,wrapTable[(int)wrap]);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapTable[(int)wrap]);
+
+  glTexImage2D(GL_TEXTURE_2D, 0, bytesPerPixel[(int)pixelFormat], 
+	       width, height, 
+	       0, pixelFormatTable[(int)pixelFormat],
+	       dataTypeTable[(int)dataType],data );
+
+  this->width = width;
+  this->height = height;
+  glBindTexture(GL_TEXTURE_2D, 0);
+  
+  textureObject = TextureObject(glRef);
+}
+
 #include <iostream>
 
 
-Texture2D::Texture2D(std::string path,GLint interpolation,GLint wrap){
-	reference=new GLuint;
-	ILuint texid;
-	ilGenImages(1,reference);
-	ilBindImage(*reference);
-
-	if(ilLoadImage(path.c_str())){
-			std::cout<<"texture "<<path<<" loaded\n";
-			ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
-
-	}else{
-		std::cout << "Problems converting image" <<path<<"\n";
-	}
-
-	glGenTextures(1,reference);
-	glBindTexture(GL_TEXTURE_2D, *reference);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,interpolation);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,interpolation);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,wrap);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, ilGetInteger(IL_IMAGE_BPP), ilGetInteger(IL_IMAGE_WIDTH), ilGetInteger(IL_IMAGE_HEIGHT), 0, IL_RGBA,GL_UNSIGNED_BYTE, ilGetData());
-
-	width=ilGetInteger(IL_IMAGE_WIDTH);
-	height=ilGetInteger(IL_IMAGE_HEIGHT);
-	ilDeleteImage(texid);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	count=new GLuint;
-	*count=1;
+void Texture::Bind(int channel){
+  if((*textureObject).glReference == -1){
+    return;
+  }
+  glActiveTexture(GL_TEXTURE0+channel);
+  glBindTexture(GL_TEXTURE_2D, (unsigned int) (*textureObject).glReference);
 }
 
-Texture2D::Texture2D(GLuint width,GLuint height,GLuint texture_format,GLuint copies,GLuint interpolation,GLuint wrap,GLuint data_type,void * data,GLuint data_format){
 
-	reference=new GLuint[copies];
-
-	glGenTextures(copies,reference);
-	for(int i=0;i<copies;i++){
-		glBindTexture(GL_TEXTURE_2D, reference[i]);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,interpolation);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,interpolation);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,wrap);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
-
-		glTexImage2D(GL_TEXTURE_2D, 0, texture_format, width, height, 0, data_format,data_type, data);
-	}
-	glBindTexture(GL_TEXTURE_2D, 0);
-	count=new GLuint;
-	*count=1;
-	this->width=width;
-	this->height=height;
-	this->n_tex=copies;
+void Texture::Unbind(int channel){
+  glActiveTexture(GL_TEXTURE0+channel);
+  glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-Texture2D::Texture2D(const Texture2D & original){
-	reference=original.reference;
-	width=original.width;
-	height=original.height;
-	count=original.count;
-	*count+=1;
-	n_tex=original.n_tex;
+void Texture::Write2Texture(int w,int h,int x,int y,
+			    PixelFormat format,
+			    TextureDataType type,void * data){
+  Bind(0);
+  glTexSubImage2D(GL_TEXTURE_2D,0,
+		  x,y,w,h,pixelFormatTable[(int)format],
+		  dataTypeTable[(int)type],data);
 }
 
-Texture2D::~Texture2D(){
-	*count-=1;
-	if(*count==0){
-		delete count;
-		glDeleteTextures(n_tex,reference);
-		delete [] reference;
-	}
+Texture Texture::FromFile(std::string path,
+			  Interpolation interpolation,
+			  TextureWrap wrap, 
+			  PixelFormat pixelFormat,  
+			  TextureDataType dataType){
+  
+  ILuint texid;
+  ilGenImages(1,&texid);
+  ilBindImage(texid);
+
+  if(ilLoadImage(path.c_str())){
+    ilConvertImage(ilPixelFormatTable[(int)pixelFormat], 
+		   ilDataTypeTable[(int)dataType]);
+    
+  }else{
+    throw "Problems converting image";
+  }
+  void * data = ilGetData();
+  int width = ilGetInteger(IL_IMAGE_WIDTH);
+  int height = ilGetInteger(IL_IMAGE_HEIGHT);
+  Texture tex = Texture(data,width,height, 
+			interpolation,wrap,
+			pixelFormat,dataType);
+  ilDeleteImage(texid);
+  
+  return tex;
 }
 
-void Texture2D::BindTexture(GLuint channel,GLuint texture){
-	glActiveTexture(GL_TEXTURE0+channel);
-	glBindTexture(GL_TEXTURE_2D, reference[texture]);
+Texture::TextureObject::TextureObject(int glRef){
+  glReference = glRef;
 }
 
-void Texture2D::UnbindTexture(GLuint channel){
-	glActiveTexture(GL_TEXTURE0+channel);
-	glBindTexture(GL_TEXTURE_2D, 0);
+void Texture::TextureObject::Dispose(){
+  if(glReference != -1){
+    std::cout << "Deleting texture.. \n";
+    unsigned int ref = glReference;
+    glDeleteTextures(1,&ref);
+  }
 }
-
-void Texture2D::Write2Texture(GLuint w,GLuint h,GLuint x,GLuint y,GLuint format,GLuint type,void * data){
-	//BindTexture(3);
-	glTexSubImage2D(GL_TEXTURE_2D,0,x,y,w,h,format,type,data);
-}
-

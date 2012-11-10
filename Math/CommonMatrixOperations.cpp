@@ -1,6 +1,6 @@
-#include "CommonMatrixOperations.hpp"
+#include "CommonMatrixOperations.h"
 #include <math.h>
-#include "Quat.hpp"
+#include "Quat.h"
 
 
 

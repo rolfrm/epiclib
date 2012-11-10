@@ -1,4 +1,6 @@
 #pragma once
+#include <cmath>
+
 template<class T, int N>
 class Vec{
 public:
@@ -7,13 +9,21 @@ public:
     return data[i];
   }
   
-  Vec<T,N> operator -(){
-  	Vec<T,N> temp;
-  	for(int i=0;i<N;i++)
-  		temp[i]=data[i];
-  	return temp;
+  template<typename T2>
+    Vec<T2,N> As(){
+    Vec<T2,N> out;
+    for(int i = 0; i < N;i++){
+      out[i] = (T2) data[i];
+    }
+    return out;
   }
 
+  Vec<T,N> operator -(){
+    Vec<T,N> temp;
+    for(int i=0;i<N;i++)
+      temp[i]= -data[i];
+    return temp;
+  }
 
 #define other_vector_operator(opr) \
   Vec<T,N> operator opr (Vec<T,N> other){	\
@@ -84,6 +94,21 @@ Vec<T,4> vec(T d0, T d1, T d2, T d3){
   out.data[2] = d2;
   out.data[3] = d3;
   return out;
+}
+
+template<class T, int d>
+T VectorLengthSquared(Vec<T,d> inVec){
+  T out = 0;
+  for(int i = 0; i < d; i++){
+    double val = inVec[i];
+    out += val * val;
+  }
+  return out;
+}
+
+template<class T, int d>
+T VectorLength(Vec<T,d> inVec){
+  return std::sqrt(VectorLengthSquared(inVec));
 }
 
 typedef Vec<double,3> Vec3d;

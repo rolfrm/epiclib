@@ -1,5 +1,5 @@
 #pragma once
-#include "GenericVector.hpp"
+#include "GenericVector.h"
 #include<algorithm>
 template<class T>
 class MatrixBase{
@@ -13,22 +13,6 @@ class MatrixBase{
     Data = data;
   }
 };
-
-/*template<class T, int rows, int cols>
-  class Matrix: public MatrixBase<T>{
-  Vec<T,cols> data[rows];
- public:
- Matrix():
-  MatrixBase(rows,cols,&data[0]){
-    
-  }
-  
-  T & operator[](int i){
-    return data[i];
-  }
-
-  };
-*/
 
 
 /*
@@ -60,6 +44,16 @@ template<class T, int size>
   Vec<T,size> & operator[](int col){
     return cols[col];
   }
+
+  template<typename T2>
+    Matrix<T2,size> As(){
+    Matrix<T2,size> out;
+    for(int i = 0; i < size;i++){
+      out[i] = cols[i].As<T2>();
+    }
+    return out;
+  }
+
 
   static Matrix<T,size> Zeros(){
     Matrix<T,size> out;
@@ -100,11 +94,12 @@ template<class T, int size>
     return out;
   }
 
-  T * asPtr(){
+  T * AsPtr(){
     return &(operator[](0)[0]);
   }
   
   Matrix<T,size> transpose(){
+<<<<<<< HEAD
   	Matrix<T,size> trans;
   	for(int i=0;i<size;i++){
   		for(int j=0;j<size;j++){
@@ -113,6 +108,16 @@ template<class T, int size>
   	}
   	return trans;
   
+=======
+    Matrix<T,size> trans;
+    for(int i = 0; i < size; i++){
+      for(int j = 0; j < size; j++){
+	trans[i][j] = cols[j][i];
+      }	
+    }
+    return trans;
+	
+>>>>>>> 7a234497739fd42baaf695898c7873aa63247f89
   }
 
 

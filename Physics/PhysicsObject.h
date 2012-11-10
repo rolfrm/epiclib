@@ -8,7 +8,7 @@
 //#include "../../Utils/VectorMath.h"
 #include <list>
 #include <map>
-#include "Math/Math.hpp"
+#include "Math/Math.h"
 #include "Polygon.h"
 
 #ifndef PHYSICSOBJECT_H_

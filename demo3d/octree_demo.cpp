@@ -1,202 +1,239 @@
+
+#include<list>
+#include <chrono>
+#include <map>
+
 #include "../Graphics/GraphicsCore.hpp"
 #include "../Graphics/Program.hpp"
 #include "../Graphics/VertexBufferObject.hpp"
 #include "../Utils/Timing.h"
+#include "../Utils/Debug.h"
 #include "Polygon.h"
 #include "Camera.h"
-#include "../Math/CommonMatrixOperations.hpp"
+#include "../Math/CommonMatrixOperations.h"
 #include "../Events/input_events.h"
-#include <iostream>
-#include <chrono>
-#include <map>
-Program * simpleShader;
+#include "CameraControl.h"
+#include "../Utils/SharedPtr.h"
+#include "Shader.h"
+#include "Tetragon.h"
+#include "GameObject.h"
+#include "World.h"
 
-class GameObject{
+template<typename T>
+double D(T v){
+  return (double) v;
+}
+
+class Context{
 public:
-  Polygon polygon;
-  Vec<float,3> pos;
-  Vec<float,3> rot;
-  DrawMethod drawMethod;
+  Context(){
+    float funnyShapeData[] = {
+      -1.0, -1.0, -1.0,  
+      1.0, -1.0, -1.0,  
+      1.0, 1.0, -1.0,  
+      -1.0, 1.0, -1.0, 
+      -1.0, -1.0, 1.0,  
+      -1.0, 1.0, 1.0, 
+      1.0, 1.0, 1.0,  
+      1.0, -1.0, 1.0
+    };
+    float planeData[] = {
+      -1.0,0,-1.0, 
+      -1.0,0,1.0,
+      1.0,0,1.0, 
+      1.0,0,-1.0 };
+    float plane2DData[] = {
+      -1.0,-1.0, 
+      1.0,-1.0,
+      1.0,1.0, 
+      -1.0,1.0};
+    float boxData[] = {
+      -1.0, -1.0, -1.0,
+      1.0, -1.0, -1.0,  
+      1.0, 1.0, -1.0,  
+      -1.0, 1.0,-1.0,
+      
+      -1.0, -1.0, 1.0,  
+      -1.0, 1.0, 1.0, 
+      1.0, 1.0, 1.0,  
+      1.0, -1.0, 1.0,
+      
+      -1.0,-1.0,-1.0,
+      1.0,-1.0,-1.0,
+      1.0,-1.0,1.0,
+      -1.0,-1.0,1.0,
+
+      -1.0,1.0,-1.0,
+      1.0,1.0,-1.0,
+      1.0,1.0,1.0,
+      -1.0,1.0,1.0,
+
+      1.0,-1.0,-1.0,
+      1.0,1.0,-1.0,
+      1.0,1.0,1.0,
+      1.0,-1.0,1.0,
+
+      -1.0,-1.0,-1.0,
+      -1.0,1.0,-1.0,
+      -1.0,1.0,1.0,
+      -1.0,-1.0,1.0
+    };
+    
+    float stars[30000];
+
+    for(int i = 0; i < 30000; i+=3){
+      double za = D(rand() % 10000) / 1000.0 ;
+      double xa = D(rand() % 10000) / 1000.0 ;
+      double x = sin(za);
+      double y = cos(za)*cos(xa);
+      double z = sin(xa);
+      stars[i] = x*100000;
+      stars[i+1] = y*100000;
+      stars[i+2] = z*100000;
+    }
+
+    
+    FunnyShape = VBO(funnyShapeData,8,3,VBODrawType::Static);
+    Plane = VBO(planeData,4,3,VBODrawType::Static);
+    Plane2D = VBO(plane2DData,4,2,VBODrawType::Static);
+    Stars = VBO(stars,10000,3,VBODrawType::Static);
+    BoxShape = VBO(boxData,24,3,VBODrawType::Static);
+    Smilie = Texture::FromFile("smilie.png",Interpolation::Linear,
+			       TextureWrap::Repeat,PixelFormat::RGB);
+    Grass = Texture::FromFile("grass.png",Interpolation::Linear,
+			       TextureWrap::Repeat,PixelFormat::RGB);
+    StarColors = Texture::FromFile("star_colors.png",Interpolation::Nearest,
+				   TextureWrap::Repeat, PixelFormat::RGB);
+  }
+  VBO FunnyShape;
+  VBO Plane;
+  VBO Plane2D;
+  VBO Stars;
+  VBO BoxShape;
+  Texture Smilie;
+  Texture Grass;
+  Texture StarColors;
+};
+
+class GameObjectTest: public GameObject{
+public:
+  GameObjectTest(Context & context){
+    Polygon pgon;
+    pgon.Load(context.BoxShape,0);
+
+    Texgon tgon;
+    tgon.Load(context.StarColors,0);
+    Tetragon tetra(TRSMatrix(vec(0.0f,0.0f,0.0f),
+			     vec(0.0f,0.0f,0.0f),
+			     vec(1.f,1.0f,1.0f)),
+		   pgon,tgon);
+    Tetragon * last = &tetra;
+    Tetra = tetra;
+    aabb = AABBMass(vec(0.0,0.0,0.0),vec(1.0,1.0,1.0),3.0);
+  }
+
+protected:
+  void Update(World & world){
+    
+    Tetragon * tetra = &Tetra;
+ 
+  }
+
 };
 
 
-class CameraControl: public EventListener<mouse_position>, public EventListener<KeyEvent>{
-public:
-  Vec<float,3> rot;
-  Vec<float,3> pos2;
-  float rx,ry,rz;
-  mouse_position pos;
-  bool first;
-  float forward;
-  float backward;
-  float left;
-  float right;
+int main_test(){
+  AABBPhysics abp;
+  AABBMass a1(vec(0.0,0.0,0.0),vec(3.0,3.0,3.0),0.01);
+  AABBMass a2(vec(2.9,2.9,2.9),vec(1.0,1.0,1.0),2.0);
+  a2.mass.vel[0] = 3.0;
+  a1.mass.vel[0] = 2.0;
+  print(a1.mass.vel);
+  print(a2.mass.vel);
   
-
-  CameraControl(){
-    first = true;
-    rx = 0;
-    ry = 0; 
-    rz = 0;
-    pos.x = 0;
-    pos.y = 0;
-    forward = 0.0;
-    backward = 0.0;
-    left = 0.0;
-    right = 0.0;
-  }
-
-  Camera GetCamera(){
-
-  }
-
-  bool handle_event(mouse_position npos){
-    
-    int dx = npos.x - 200;
-    
-    int dy = npos.y - 200;
-    
-    SetMousePosition(200,200);
-    
-    rx += (float) dy / 1000.0;
-    ry += (float) dx / 1000.0;
-    std::cout << rx << " " << ry << "\n";
-    return true;
-  }
-  bool handle_event(KeyEvent ke){
-    switch(ke.key){
-    case ARROW_UP:forward = (ke.pressed ? 1 : 0); break;
-    case ARROW_DOWN:backward = (ke.pressed ? 1 : 0); break;
-    case ARROW_LEFT:left = (ke.pressed ? 1 : 0); break;
-    case ARROW_RIGHT:right = (ke.pressed ? 1 : 0); break;
-    }
-    return true;
-  }
-
-};
-
-template<class T,int size>
-void print(Matrix<T,size> mat){
-  for(int row = 0; row < size; row++){
-    std::cout << " |";
-    for(int col = 0; col < size; col++){
-      std::cout << mat[col][row] << " ";
-    }
-    std::cout << "|\n";
-  }
-}
-
-template<class T, int size>
-void print(Vec<T,size> vec){
-  std::cout << "(";
-  for(int i = 0; i < size; i++){
-    std::cout << vec[i] << " ";
-  }
-  std::cout << ")\n";
-
-}
-using namespace std::chrono;
-#include<list>
-int main(){
+  std::cout << abp.CheckHandleCollision(a1,a2) << "\n";
+  
+  print(a1.mass.vel);
+  print(a2.mass.vel);
+  std::cout << abp.CheckHandleCollision(a1,a2) << "\n";
+  print(a1.mass.vel);
+  print(a2.mass.vel);
+  return 0;
+  Context context;
   StopWatch swatch;
-  swatch.Start();
-  initOpenGL(400,400);
-  std::cout << "Elapsed: " << swatch.ElapsedSeconds() << "\n";
-  Matrix<float,4> P = ProjectionMatrix(2,2,5.0,20000.0);
-  Camera cam;
-  std::list<GameObject *> golist;
-
-  init_events();
+  World world;
   CameraControl ev;
+  glPointSize(2.0);
+  ev.cam.position = vec(0.0f,0.0f,25.0f);
   mouse_move_spawner.register_listener(&ev);
   key_event_handler.register_listener(&ev);
-  simpleShader = new Program(
-			     Shader::FromFile("simple.vert",
-					      ShaderType::VERTEX),
-			     Shader::FromFile("simple.frag",
-					      ShaderType::FRAGMENT));
-  simpleShader->UseProgram();
- 
-  double data [] = {
-    0.0, 0.0, 0.0,  1.0, 0.0, 0.0,  1.0, 1.0, 0.0,  0.0, 1.0, 0.0,
-    0.0, 0.0, 1.0,  0.0, 1.0, 1.0,  1.0, 1.0, 1.0,  1.0, 0.0, 1.0
-  };
-
-  double planeData [] = {-10000,0,-10000, 
-		     -10000,0,10000,
-		     10000,0,10000,
-		     10000,0,-10000};
-
-
-  Polygon p1;
-  VertexBufferObject vbo(data,8,3,VBODrawType::STATIC);
-  p1.Load(vbo,8,0);
-  VertexBufferObject pvbo = VertexBufferObject(planeData,4,3,VBODrawType::STATIC);
-  Polygon plane;
-  plane.Load(pvbo,4,0);
   
-  for(int i = 0; i < 1000;i++){
-    
-    float x = (float) ( i % 2);
-    float y = (float) ( i / 2);
-    float z = (float) ( i / 2);
-    GameObject * go = new GameObject();
-    go->polygon = p1;
-    go->rot = vec(0.0f,0.0f,0.0f);
-    go->pos = vec(x*5,y*5,z*5);
-    go->drawMethod = DrawMethod::LINE_LOOP;
-    golist.push_back(go);
-  }
+  FlatShader3D flat;
+  flat.SetProjection(ProjectionMatrix(0.01,0.01,0.01,200000.0));
+  
+  GameObject * go = new GameObjectTest(context);
+  world.InsertObject(go);
 
-  GameObject g2 = {plane,vec(0.0f,0.0f,0.0f),vec(0.0f,0.0f,0.0f),DrawMethod::QUADS};
-  golist.push_back(&g2);
-  float it = 0.0;
-  StopWatch swatch2;
+  go = new GameObjectTest(context);
+  go->aabb.pos[1] += 10;
+  world.InsertObject(go);
+
+  go = new GameObjectTest(context);
+  go->aabb.pos[0] += 10;
+  
+  go->aabb.pos[1] += 10;
+  go->GravityBound = false;
+  world.InsertObject(go);
+  
+  go = new GameObjectTest(context);
+  go->aabb.pos[0] += 10;
+  
+  world.InsertObject(go);
+  
+  VBO stars = context.Stars;
   while(true){
-    swatch2.Reset();
-    swatch2.Start();
-    swatch.Reset();
-    swatch.Start();
-  
-    ClearBuffer(vec(0.0f,0.0f,0.0f,1.0f));
-    simpleShader->setUniform("Color",cos(it*2.1)* 0.5 + 0.5,cos(it*3.1 + 1)* 0.5 + 0.5,cos(it*3.1 + 3.0)*0.5 + 0.5 ,1.0);
+    auto goList = world.GetNearbyObjects(vec(0.0,0.0,0.0),5000000.0);
+    world.PhysicsUpdate(vec(0.0,0.0,0.0),500000,0.1);
 
-    Vec<float,4> dir = vec(-(ev.left - ev.right),0.0f,ev.forward - ev.backward,1.0f); 
-    cam = cam.SetRotation(vec(-ev.rx,-ev.ry,0.0f));
-
-    it += 0.01;
-    Matrix<float,4> c = cam.getTransformMatrix();
-    Matrix<float,4> cr = c;
-    cr[3][0] = 0;
-    cr[3][1] = 0;
-    cr[3][2] = 0;
-    dir = cr * dir * 10;
-    print(dir);
-    for(auto list_it = golist.begin(); list_it != golist.end(); list_it++){
-      Vec<float,3> p = (*list_it)->pos;
-      Vec<float,3> r = (*list_it)->rot;
-      Matrix<float,4> TRS = TRSMatrix(p,r,vec(1.0f,1.0f,1.0f));
-      
-      Matrix<float,4> t =  P * c * TRS;
-      simpleShader->setUniformMat4x4("T",t.asPtr());
-      if((*list_it)->drawMethod == DrawMethod::QUADS){
-	simpleShader->setUniform("Color",cos(it*2.1) * 0.5 + 0.5,sin(it*3.1 + 1)* 0.5 + 0.5,sin(it*3.1 + 3.0)*0.5 + 0.5 ,1.0);
-
-	(*list_it)->polygon.Draw((*list_it)->drawMethod);
-      }else{
-	(*list_it)->polygon.Draw((*list_it)->drawMethod);
-      }
+    for(auto go : goList){
+      go.Get()->DoUpdate(world);
     }
 
+    //ev.cam.position = go->aabb.pos.As<float>() + vec(0.0f,-2.0f,0.0f);
+    print(go->aabb.pos);
+    swatch.Reset();
+    swatch.Start();
+    ClearBuffer(vec(0.0f,0.0f,0.0f,1.0f));
+    Matrix<float,4> cameraMatrix = ev.GetCamera().getTransformMatrix();
+    /*cameraMatrix[3][0] = 0;
+    cameraMatrix[3][1] = 0;
+    cameraMatrix[3][2] = 0;
+    */
+    flat.SetCamera(cameraMatrix);   
     
-    
-
+    flat.SetModelView(Matrix<float,4>::Eye());
+    context.StarColors.Bind(0);
+    stars.BindBuffer(0);
+    VertexBufferObject::DrawBuffers(DrawMethod::Points,100);
+    flat.SetCamera(ev.GetCamera().getTransformMatrix());   
+    goList = world.GetNearbyObjects(vec(0.0,0.0,0.0),5000000.0);
+    for(auto go: goList){
+      go.Get()->Draw(flat);
+    }
     SwapBuffers();
-    
-    Sleep(1/30.0 - swatch.ElapsedSeconds());
-    cam = cam.move(vec(dir[0],dir[1],dir[2]));
-    std::cout << " " <<  1.0 / swatch2.ElapsedSeconds() << " fps\n";
-    
+    Sleep(1/60.0 - swatch.ElapsedSeconds());
   }
+}
+
+int main(){
+  initOpenGL(400,400);
+  init_events();
+  
+  main_test();
+  std::cout << "Testing mem corruption\n";
+  int * i = new int[12345];
+  delete i;
+  std::cout << "OK\n";
+  return 0;
 
 }

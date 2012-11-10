@@ -5,7 +5,7 @@
  *      Author: sebastian
  */
 
-#include "Quat.hpp"
+#include "Quat.h"
 #include <math.h>
 #include <iostream>
 
@@ -53,7 +53,7 @@ Matrix<float,4> Quaternion::AsMatrix(){
   out[0][1] = 2 * x * y + 2 * w * z;
   out[0][2] = 2 * x * z - 2 * w * y;
   out[0][3] = 0;*/
-  Write2Matrix(out.asPtr());
+  Write2Matrix(out.AsPtr());
   return out;
 }
 

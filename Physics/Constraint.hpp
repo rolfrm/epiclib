@@ -8,7 +8,7 @@
 #ifndef CONSTRAINT_HPP_
 #define CONSTRAINT_HPP_
 
-#include "Math/Math.hpp"
+#include "Math/Math.h"
 
 
 class PhysicsObject;

@@ -6,26 +6,54 @@
  */
 
 #include <GL/glew.h>
-
+#include <GL/gl.h>
 #include "Program.hpp"
 #include <iostream>
 #include <fstream>
 #include <sstream>
 
+ShaderObject::ShaderObject(int _gl_ref):
+  gl_ref(_gl_ref)
+{
+  
+}
+
+ShaderObject::ShaderObject(): gl_ref(-1){
+
+}
+
+int & ShaderObject::GetGLRef(){
+  return gl_ref;
+}
+
+void ShaderObject::Dispose(){
+  if(gl_ref != -1){
+    glDeleteShader(gl_ref);
+  }
+}
+
 
 GLuint shaderTypes[] = {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_GEOMETRY_SHADER};
-Shader Shader::FromString(const char * shaderAsString,ShaderType stype){
 
+Shader Shader::FromFile(const char * shaderPath, ShaderType type){
+	std::ifstream is (shaderPath,std::ios::in);
+	std::stringstream buffer;
+	buffer<<is.rdbuf();
+	std::string shaderstring=buffer.str();
+	return Shader(shaderstring.c_str(),type);
+}
 
-  GLuint type = shaderTypes[(int)stype];
-  int reference = glCreateShader(type);
-  const char * s =shaderAsString;
-  glShaderSource(reference,1,&s,NULL);
+Shader::Shader(const char * shader_code,ShaderType type):glReference(ShaderObject(-1)){
+ 
+  int reference = glCreateShader(shaderTypes[(int)type]);
+  const char * s = shader_code;
+
+  glShaderSource(reference, 1, &s, NULL);
   glCompileShader(reference);
 
-  
   GLint status;
   glGetShaderiv(reference, GL_COMPILE_STATUS, &status);
+  
   if (status == GL_FALSE){
     GLint infoLogLength;
     glGetShaderiv(reference, GL_INFO_LOG_LENGTH, &infoLogLength);
@@ -34,156 +62,73 @@ Shader Shader::FromString(const char * shaderAsString,ShaderType stype){
     
     const char *strShaderType = NULL;
     switch(type){
-    case GL_VERTEX_SHADER: strShaderType = "vertex"; break;
-    case GL_GEOMETRY_SHADER: strShaderType = "geometry"; break;
-    case GL_FRAGMENT_SHADER: strShaderType = "fragment"; break;
+    case ShaderType::Vertex: strShaderType = "vertex"; break;
+    case ShaderType::Geometry: strShaderType = "geometry"; break;
+    case ShaderType::Fragment: strShaderType = "fragment"; break;
     }
     fprintf(stderr, "Compile failure in %s shader:\n%s\n", strShaderType, strInfoLog);
     delete[] strInfoLog;
   }
-  return Shader(reference, type);
-	
-}
-Shader Shader::FromFile(const char * shaderPath, ShaderType type){
-	std::ifstream is (shaderPath,std::ios::in);
-	std::stringstream buffer;
-	buffer<<is.rdbuf();
-	std::string shaderstring=buffer.str();
-	return FromString(shaderstring.c_str(),type);
-}
 
-Shader::Shader(int reference, GLenum type){
-  this->reference = reference;
+  glReference = reference;
   this->type = type;
-  count = new GLuint(1);
 }
 
-Shader::Shader(const char * shader_path,GLenum type){
-	std::ifstream is (shader_path,std::ios::in);
-	std::stringstream buffer;
-	buffer<<is.rdbuf();
-	std::string shaderstring=buffer.str();
+void Program::init(Shader vertex_shader, Shader fragment_shader){
+  reference=glCreateProgram();
+  glAttachShader(reference,vertex_shader.glReference.Get().GetGLRef());
+  glAttachShader(reference,fragment_shader.glReference.Get().GetGLRef());
 
-
-	reference = glCreateShader(type);
-	const char * s =shaderstring.c_str();
-	glShaderSource(reference,1,&s,NULL);
-	glCompileShader(reference);
-
-
-	GLint status;
-	glGetShaderiv(reference, GL_COMPILE_STATUS, &status);
-	if (status == GL_FALSE){
-		GLint infoLogLength;
-		glGetShaderiv(reference, GL_INFO_LOG_LENGTH, &infoLogLength);
-		GLchar *strInfoLog = new GLchar[infoLogLength + 1];
-		glGetShaderInfoLog(reference, infoLogLength, NULL, strInfoLog);
-
-		const char *strShaderType = NULL;
-	    switch(type){
-	        case GL_VERTEX_SHADER: strShaderType = "vertex"; break;
-	        case GL_GEOMETRY_SHADER: strShaderType = "geometry"; break;
-	        case GL_FRAGMENT_SHADER: strShaderType = "fragment"; break;
-	    }
-	    fprintf(stderr, "Compile failure in %s shader:\n%s\n", strShaderType, strInfoLog);
-	    delete[] strInfoLog;
-	}
-
-	count = new GLuint;
-	*count=1;
-	this->type=type;
-
+  Link();
+  GLint status;
+  glGetProgramiv (reference, GL_LINK_STATUS, &status);
+  if (status == GL_FALSE){
+    GLint infoLogLength;
+    glGetProgramiv(reference, GL_INFO_LOG_LENGTH, &infoLogLength);
+      
+    GLchar *strInfoLog = new GLchar[infoLogLength + 1];
+    glGetProgramInfoLog(reference, infoLogLength, NULL, strInfoLog);
+    fprintf(stderr, "Linker failure: %s\n", strInfoLog);
+    delete[] strInfoLog;
+  }
+  count=new GLuint;
+  *count=1;
 }
-
-
-Shader::Shader(const Shader & original){
-	reference=original.reference;
-	type=original.type;
-	count=original.count;
-	*count+=1;
-}
-
-Shader::~Shader(){
-	*count-=1;
-	if(count==0){
-		delete count;
-		glDeleteShader(reference);
-	}
-}
-
 Program::Program(Shader vertex_shader,Shader fragment_shader){
-	reference=glCreateProgram();
-	glAttachShader(reference,vertex_shader.reference);
-	glAttachShader(reference,fragment_shader.reference);
-
-    BindAttribute("pos",0);
-    BindAttribute("uv",1);
-
-	Link();
-    GLint status;
-    glGetProgramiv (reference, GL_LINK_STATUS, &status);
-    if (status == GL_FALSE){
-        GLint infoLogLength;
-        glGetProgramiv(reference, GL_INFO_LOG_LENGTH, &infoLogLength);
-
-        GLchar *strInfoLog = new GLchar[infoLogLength + 1];
-        glGetProgramInfoLog(reference, infoLogLength, NULL, strInfoLog);
-        fprintf(stderr, "Linker failure: %s\n", strInfoLog);
-        delete[] strInfoLog;
-    }
-    count=new GLuint;
-    *count=1;
+  init(vertex_shader,fragment_shader);
 }
 
 Program::Program(const char * path_vertex_shader,const char * path_fragment_shader){
-	Shader vertex_shader(path_vertex_shader,GL_VERTEX_SHADER),fragment_shader(path_fragment_shader,GL_FRAGMENT_SHADER);
-	reference=glCreateProgram();
-	glAttachShader(reference,vertex_shader.reference);
-	glAttachShader(reference,fragment_shader.reference);
-
-    BindAttribute("pos",0);
-    BindAttribute("uv",1);
-
-	Link();
-    GLint status;
-    glGetProgramiv (reference, GL_LINK_STATUS, &status);
-    if (status == GL_FALSE){
-        GLint infoLogLength;
-        glGetProgramiv(reference, GL_INFO_LOG_LENGTH, &infoLogLength);
-
-        GLchar *strInfoLog = new GLchar[infoLogLength + 1];
-        glGetProgramInfoLog(reference, infoLogLength, NULL, strInfoLog);
-        fprintf(stderr, "Linker failure: %s\n", strInfoLog);
-        delete[] strInfoLog;
-    }
-    count=new GLuint;
-    *count=1;
+  Shader vertex_shader = Shader::FromFile(path_vertex_shader,ShaderType::Vertex);
+  Shader fragment_shader = Shader::FromFile(path_fragment_shader,ShaderType::Fragment);
+  init(vertex_shader,fragment_shader);
 }
 
 Program::Program(const Program & original){
-	reference=original.reference;
-	count=original.count;
-	*count+=1;
+  reference=original.reference;
+  count=original.count;
+  *count+=1;
 }
 
 Program::~Program(){
-	*count-=1;
-	if(count==0){
-		delete count;
-		glDeleteProgram(reference);
-	}
+  *count-=1;
+  if(count==0){
+    delete count;
+    
+    glDeleteProgram(reference);
+  }
 }
 
 GLuint Program::getUniformLocation(const char * name){
-	return glGetUniformLocation(reference,name);
+  return glGetUniformLocation(reference,name);
 }
 
 void Program::setUniform(const char * name,float f1){
-	glUniform1f(getUniformLocation(name),f1);
+  glUniform1f(getUniformLocation(name),f1);
 }
 
 void Program::setUniform(const char * name,float f1,float f2){
-	glUniform2f(getUniformLocation(name),f1,f2);
+  glUniform2f(getUniformLocation(name),f1,f2);
 }
 
 void Program::setUniform(const char * name,float f1,float f2,float f3){
