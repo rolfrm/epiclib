@@ -71,6 +71,12 @@ Matrix<float,4> RTMatrix(Vec<float,3> r, Vec<float,3> t){
   return R * T;
 }
 
+Matrix<float,4> TRMatrix(Vec<float,3> t, Vec<float,3> r){
+  Matrix<float,4> R = RMatrix(r);
+  Matrix<float,4> T = TMatrix(t);
+  return T * R;
+}
+
 
 Matrix<float,4> ProjectionMatrix(float width, float height,float near, float far){
   Matrix<float,4> omat = Matrix<float,4>::Zeros();

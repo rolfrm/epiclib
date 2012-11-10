@@ -108,7 +108,7 @@ template<class T, int size>
   	Matrix<T,size> trans;
   	for(int i=0;i<size;i++){
   		for(int j=0;j<size;j++){
-  			trans[i][j]=trans[j][i];
+  			trans[i][j]=cols[j][i];
   		}	
   	}
   	return trans;
