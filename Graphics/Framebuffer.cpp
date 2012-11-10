@@ -10,6 +10,12 @@
 #include "GraphicsCore.hpp"
 #include <GL/glew.h>
 #include <GL/gl.h>
+
+FrameBuffer::FrameBuffer(){
+
+
+}
+
 FrameBuffer::FrameBuffer(GLuint width,GLuint height,GLuint internal_format,GLuint texture_copies,GLuint interpolation,GLuint wrap){
   render_buffer=new Texture2D(width,height,internal_format,texture_copies,interpolation,wrap);
   
@@ -46,12 +52,15 @@ FrameBuffer::~FrameBuffer(){
 
 void FrameBuffer::BindFramebuffer(){
   glBindFramebuffer(GL_FRAMEBUFFER,reference);
-  glViewport(0,0,render_buffer->width,render_buffer->height);
+  if(render_buffer!=NULL)
+	glViewport(0,0,render_buffer->width,render_buffer->height);
+  else if(depth_buffer!=NULL)
+    glViewport(0,0,depth_buffer->width,depth_buffer->height);
 }
 
 void FrameBuffer::BindScreenBuffer(){
   glBindFramebuffer(GL_FRAMEBUFFER,0);
-  glViewport(0,0,Dormir::getWidth(),Dormir::getHeight());
+  glViewport(0,0,getWidth(),getHeight());
 }
 
 void FrameBuffer::ClearColorBuffer(GLfloat red,GLfloat green,GLfloat blue,GLfloat alpha){

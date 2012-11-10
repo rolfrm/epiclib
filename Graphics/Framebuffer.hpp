@@ -7,8 +7,9 @@
 
 #ifndef FRAMEBUFFER_HPP_
 #define FRAMEBUFFER_HPP_
-#define GLuint unsigned int
-#define GLfloaat float
+
+#include <GL/glew.h>
+#include <GL/gl.h>
 
 class Texture2D;
 
@@ -24,7 +25,7 @@ public:
   
   static void ClearColorBuffer(GLfloat red=0.0f,GLfloat green=0.0f,GLfloat blue=0.0f,GLfloat alpha=0.0f);
   
-  Texture2D * render_buffer;
+  Texture2D * render_buffer,* depth_buffer;
   GLuint * count,reference;
 };
 
