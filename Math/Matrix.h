@@ -99,25 +99,13 @@ template<class T, int size>
   }
   
   Matrix<T,size> transpose(){
-<<<<<<< HEAD
   	Matrix<T,size> trans;
   	for(int i=0;i<size;i++){
   		for(int j=0;j<size;j++){
   			trans[i][j]=cols[j][i];
   		}	
   	}
-  	return trans;
-  
-=======
-    Matrix<T,size> trans;
-    for(int i = 0; i < size; i++){
-      for(int j = 0; j < size; j++){
-	trans[i][j] = cols[j][i];
-      }	
-    }
-    return trans;
-	
->>>>>>> 7a234497739fd42baaf695898c7873aa63247f89
+  	return trans;	
   }
 
 
