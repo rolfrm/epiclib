@@ -2,11 +2,19 @@
 #pragma once
 #include "../Math/GenericVector.h"
 #include <list>
+#include <vector>
+class PhysicsTriangle{
+  Vec<double,3> p1;
+  Vec<double,3> p2;
+  Vec<double,3> p3;
+};
+
 class AABB{
 public:
   Vec<double,3> pos;
   Vec<double,3> size;
   AABB(Vec<double,3> _pos, Vec<double,3> _size);
+  std::vector<PhysicsTriangle> triangles;
 };
 
 class Newtonian{

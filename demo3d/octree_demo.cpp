@@ -129,42 +129,117 @@ public:
 		   pgon,tgon);
     Tetragon * last = &tetra;
     Tetra = tetra;
-    aabb = AABBMass(vec(0.0,0.0,0.0),vec(1.0,1.0,1.0),3.0);
+    aabb = AABBMass(vec(0.0,0.0,0.0),vec(2.0,2.0,2.0),3.0);
   }
 
 protected:
   void Update(World & world){
     
-    Tetragon * tetra = &Tetra;
- 
+  }
+};
+
+class playerControl: 
+  public EventListener<mouse_position>, 
+  public EventListener<KeyEvent> 
+{
+
+  float forward;
+  float backward;
+  float left;
+  float right;  
+  float horz_speed;
+  float speed;
+  float r1;
+  float r2;
+public:
+  
+  playerControl(){
+    mouse_move_spawner.register_listener(this);
+    key_event_handler.register_listener(this);
+    r1 = 0.0f;
+    r2 = 0.0f;
   }
 
+  bool handle_event(mouse_position npos){
+    int dx = npos.x - 200;
+    int dy = npos.y - 200;
+    SetMousePosition(200,200);
+    r1 += dx;
+    r2 += dy;
+    update_position(0,0,dx,dy);
+    return true;
+  }
+  
+  bool handle_event(KeyEvent ke){
+    switch(ke.key){
+    case ARROW_UP:forward = (ke.pressed ? 1 : 0); break;
+    case ARROW_DOWN:backward = (ke.pressed ? 1 : 0); break;
+    case ARROW_LEFT:left = (ke.pressed ? 1 : 0); break;
+    case ARROW_RIGHT:right = (ke.pressed ? 1 : 0); break;
+    }
+    float newHorzSpeed = (left - right) - horz_speed;
+    float newVertSpeed = (forward - backward) - speed;
+    speed = forward - backward;
+    horz_speed = left - right;
+    update_position(newHorzSpeed,newVertSpeed,0,0);
+    
+    return true;
+  }
+
+  virtual void update_position(double dvx, double dvy,double r1, double r2){
+    
+  }
+};
+
+class player: public GameObject, public playerControl{
+  player(Context & context){
+    Polygon pgon;
+    pgon.Load(context.BoxShape,0);
+    
+    Texgon tgon;
+    tgon.Load(context.StarColors,0);
+    Tetragon tetra(TRSMatrix(vec(0.0f,0.0f,0.0f),
+			     vec(0.0f,0.0f,0.0f),
+			     vec(1.f,1.0f,1.0f)),
+		   pgon,tgon);
+    Tetragon * last = &tetra;
+    Tetra = tetra;
+    aabb.size = vec(2.0,2.0,2.0);
+    aabb.mass = 100;
+  }
+
+  bool handle_event(mouse_position npos){
+    int dx = npos.x - 200;
+    int dy = npos.y - 200;
+    SetMousePosition(200,200);
+  }
+
+  bool handle_event(KeyEvent ke){
+
+  }
+ 
+  void update_position(double dvx, double dvy,double r1, double r2){
+    aabb.mass.vel[0] = dvx;
+    aabb.mass.vel[1] = dvy;
+    
+  }
+
+							     
+protected:
+  
+  void Update(World & world){
+    
+  }
 };
 
 
 int main_test(){
-  AABBPhysics abp;
-  AABBMass a1(vec(0.0,0.0,0.0),vec(3.0,3.0,3.0),0.01);
-  AABBMass a2(vec(2.9,2.9,2.9),vec(1.0,1.0,1.0),2.0);
-  a2.mass.vel[0] = 3.0;
-  a1.mass.vel[0] = 2.0;
-  print(a1.mass.vel);
-  print(a2.mass.vel);
-  
-  std::cout << abp.CheckHandleCollision(a1,a2) << "\n";
-  
-  print(a1.mass.vel);
-  print(a2.mass.vel);
-  std::cout << abp.CheckHandleCollision(a1,a2) << "\n";
-  print(a1.mass.vel);
-  print(a2.mass.vel);
-  return 0;
   Context context;
   StopWatch swatch;
   World world;
   CameraControl ev;
   glPointSize(2.0);
-  ev.cam.position = vec(0.0f,0.0f,25.0f);
+  ev.cam.position = vec(0.0f,0.0f,5.0f);
   mouse_move_spawner.register_listener(&ev);
   key_event_handler.register_listener(&ev);
   
@@ -172,26 +247,27 @@ int main_test(){
   flat.SetProjection(ProjectionMatrix(0.01,0.01,0.01,200000.0));
   
   GameObject * go = new GameObjectTest(context);
-  world.InsertObject(go);
-
-  go = new GameObjectTest(context);
-  go->aabb.pos[1] += 10;
-  world.InsertObject(go);
-
-  go = new GameObjectTest(context);
-  go->aabb.pos[0] += 10;
   
-  go->aabb.pos[1] += 10;
   go->GravityBound = false;
+  go->aabb.pos[0] += 0.1;
+  go->aabb.pos[2] += 0.1;
+  go->aabb.pos[1] -= 4.0;
+  go->aabb.size = vec(20.0,2.0,20.0);
+  go->aabb.mass = 100000.0;
+  go->Tetra.TRS = TMatrix(vec(10.0f,0.0f,10.0f)) * SMatrix(vec(10.0f,1.0f,10.0f));
   world.InsertObject(go);
-  
+
+
   go = new GameObjectTest(context);
-  go->aabb.pos[0] += 10;
-  
+  go->GravityBound = false;
+  go->aabb.size = vec(2.0,2.0,2.0);
+  go->Tetra = Tetragon();
   world.InsertObject(go);
-  
   VBO stars = context.Stars;
   while(true){
+    Matrix<float,4> cameraMatrix;
+    go->aabb.pos = -ev.cam.position.As<double>() - vec(0.0,0.0,0.0);
+    print(go->aabb.pos);
     auto goList = world.GetNearbyObjects(vec(0.0,0.0,0.0),5000000.0);
     world.PhysicsUpdate(vec(0.0,0.0,0.0),500000,0.1);
 
@@ -204,7 +280,7 @@ int main_test(){
     swatch.Reset();
     swatch.Start();
     ClearBuffer(vec(0.0f,0.0f,0.0f,1.0f));
-    Matrix<float,4> cameraMatrix = ev.GetCamera().getTransformMatrix();
+    cameraMatrix = ev.GetCamera().getTransformMatrix();
     /*cameraMatrix[3][0] = 0;
     cameraMatrix[3][1] = 0;
     cameraMatrix[3][2] = 0;
@@ -221,7 +297,7 @@ int main_test(){
       go.Get()->Draw(flat);
     }
     SwapBuffers();
-    Sleep(1/60.0 - swatch.ElapsedSeconds());
+    Sleep(1/30.0 - swatch.ElapsedSeconds());
   }
 }
 

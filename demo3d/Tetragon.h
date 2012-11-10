@@ -7,6 +7,7 @@
 class TetragonBase{
 public:
   TetragonBase(Polygon _pgon, Texgon _tgon);
+  
   Polygon pgon;
   Texgon tgon;
   void Draw(Shader3D & shader);
@@ -19,7 +20,7 @@ class Tetragon: public TetragonBase{
  public:
  
  Tetragon(Matrix<float,4> tr, Polygon _pgon, Texgon _tgon);
-
+ Tetragon();
  Matrix<float,4> TRS;
  void AttachTetragon(Tetragon tgon);
  void Draw(Shader3D &  shader,Matrix<float,4> T);

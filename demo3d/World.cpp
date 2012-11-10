@@ -42,8 +42,8 @@ void World::PhysicsUpdate(Vec<double,3> pos, double radius, double dt){
   }
   
   AABBListPhysics physicsHandler;
-  masses = physicsHandler.PhysicsIteration(masses);
-  
+  PhysicsIterationResult result = physicsHandler.PhysicsIteration2(masses,dt);
+  masses = result.NewMasses;
   for(AABBMass aabb : masses){
     (*(golist.begin())).Get()->aabb = aabb;
     golist.pop_front();

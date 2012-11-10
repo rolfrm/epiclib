@@ -31,7 +31,11 @@ enum class PixelFormat{
     Grey = 2,
     Grey16 = 3,
     RGBA32F = 4,
-    RGBA16F = 5
+    RGBA16F = 5,
+    Depth = 6,
+    Depth16 = 7,
+    Depth24 = 8,
+    Depth32 = 9
 };
 
 

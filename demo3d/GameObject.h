@@ -15,6 +15,7 @@ public:
   bool Movable;
   void DoUpdate(World & world);
   void Draw(Shader3D & shader);
+  Vec<double,3> rotation;
  protected:
   virtual void Update(World & world);
 };

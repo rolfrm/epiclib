@@ -61,7 +61,7 @@ bool AABBPhysics::CheckHandleCollision(AABBMass & aabb1, AABBMass & aabb2){
   actualOverlap[collisionAxis] = overlap[collisionAxis] * sign[collisionAxis];
   double m1 = aabb1.mass.mass;
   double m2 = aabb2.mass.mass;
-  double m1ratio = m2 /( m1 + m2);
+  double m1ratio = m2 / (m1 + m2);
   double m2ratio = -m1 / (m1 + m2);
  
   double cv1 = aabb1.mass.vel[collisionAxis];
@@ -108,19 +108,26 @@ std::list<AABBMass> AABBListPhysics::PhysicsIteration(std::list<AABBMass> aabbs)
 PhysicsIterationResult AABBListPhysics::PhysicsIteration2(std::list<AABBMass> aabbs, double dt){
   std::list<AABBMass> outList;
   for(AABBMass aabb : aabbs){
-    outList.push_back(UpdatePosition(aabb,0.01));
+    outList.push_back(UpdatePosition(aabb,dt));
   }
   PhysicsIterationResult pir;
+  int i1 = 0;
+  int i2 = 0;
   for(auto a = outList.begin(); a != outList.end();a++){
     auto b = a;
     b++;
+    i2 = i1 + 1;
     for(;b != outList.end();b++){
+      
       bool collided = CheckHandleCollision(*a,*b);
       if(collided){
-	
+	pir.Colliders.push_back({i1,i2});
       }
+      i2 += 1;
     }
+    i1 += 1;
   }
-
+  pir.NewMasses = outList;
+  return pir;
 
 }

@@ -15,6 +15,9 @@ Tetragon::Tetragon(Matrix<float,4> tr, Polygon _pgon, Texgon _tgon):TetragonBase
   TRS = tr;
   
 }
+Tetragon::Tetragon():TetragonBase(Polygon(),Texgon()){
+  
+}
 
 void Tetragon::AttachTetragon(Tetragon tgon){
   subGons.push_back(tgon);
@@ -25,7 +28,6 @@ void Tetragon::Draw(Shader3D & shader,Matrix<float,4> T){
   shader.SetModelView(relative);
   TetragonBase::Draw(shader);
   for(auto it = subGons.begin(); it != subGons.end();it++){
-    //std::cout << "Sub..\n";
     (*it).Draw(shader,relative);
   }
 }
