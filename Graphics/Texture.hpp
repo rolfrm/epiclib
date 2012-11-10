@@ -51,7 +51,9 @@ class Texture{
   SharedPtr<TextureObject> textureObject;
 public:
   int width, height, n_tex; 
-  Texture(void * data, int width, int height,
+  
+  
+  Texture(int width, int height,void * data=NULL,
 	    Interpolation interpolation = Interpolation::Linear,
 	    TextureWrap wrap = TextureWrap::Repeat, 
 	    PixelFormat pixelFormat = PixelFormat::RGBA,  
@@ -68,6 +70,7 @@ public:
   void Bind(int channel);
   void Unbind(int channel);
   void Write2Texture(int width,int height,int x,int y,PixelFormat pixelFormat, TextureDataType type,void * data);  
+  int unsafeOpenGLTextureRef(){return textureObject.Get().glReference;} //Be cautious when using this function, the reference might get deleted if all instances of the Texture class are deleted
 };
 
 
