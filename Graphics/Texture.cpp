@@ -22,7 +22,7 @@ unsigned int pixelFormatTable[] = {GL_RGBA, GL_RGB, GL_LUMINANCE,
 				   GL_LUMINANCE16, GL_RGBA32F, 
 				   GL_RGBA16F,GL_DEPTH_COMPONENT, 
 				   GL_DEPTH_COMPONENT16,GL_DEPTH_COMPONENT24,
-GL_DEPTH_COMPONENT32};
+				   GL_DEPTH_COMPONENT32};
 unsigned int ilDataTypeTable [] = {IL_UNSIGNED_BYTE};
 unsigned int ilPixelFormatTable[] = {IL_RGBA, IL_RGB, IL_LUMINANCE, 
 				     IL_LUMINANCE, IL_RGBA, IL_RGBA};

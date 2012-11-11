@@ -9,7 +9,7 @@ CameraControl::CameraControl(){
 }
 
 Camera CameraControl::GetCamera(){
-  double sec = swatch.ElapsedSeconds();
+   double sec = swatch.ElapsedSeconds();
   Vec<float,3> d = vec(right - left,0.0f,forward-backward);
   cam = cam.moveRelative(d * sec * 10 );
   swatch.Reset();

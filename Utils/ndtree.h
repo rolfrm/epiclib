@@ -8,45 +8,10 @@ TODO: Avoid copy paste-code, but almost done
 #ifndef NULL
 #define NULL 0
 #endif
-
+#include "../Math/GenericVector.h"
 template<int N>
-class IVec{
-public:
-  int data[N];
-  IVec<N> operator/(int scale){
-    IVec<N> out;
-    for(int i = 0; i <N;i++){
-      out.data[i] = data[i]/scale;
-    }
-    return out;
-  }
+using IVec = Vec<int,N>;
 
-  IVec operator+(IVec<N> other){
-    IVec<N> out;
-    for(int i = 0; i< N;i++){
-      out.data[i] = other.data[i] + data[i];
-    }
-    return out;
-  }
-
-  IVec operator>>(int bits){
-    IVec<N> out;
-    for(int i = 0; i < N ; i++){
-      out.data[i] = data[i] >> bits;
-    }
-    return out;
-  }
-
-  IVec operator&(int bits){
-    IVec<N> out;
-    for(int i = 0; i < N ; i++){
-      out.data[i] = data[i] & bits;
-    }
-    return out;
-  }
-
-
-};
 #include <iostream>
 template<class T, int D>
 class Node{
@@ -170,8 +135,3 @@ public:
   }
 
 };
-
-IVec<3> make_vec3(int x, int y, int z);
-IVec<2> make_vec2(int x, int y);
-IVec<4> make_vec4(int x, int y , int z, int w);
-IVec<1> make_vec1(int x);
