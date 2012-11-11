@@ -12,7 +12,9 @@
 #include <IL/il.h>
 
 Texture::Texture(){
-
+	n_tex=0;
+	width=0;
+	height=0;
 }
 
 unsigned int interpolationTable [] = {GL_NEAREST, GL_LINEAR};
@@ -28,7 +30,7 @@ unsigned int ilPixelFormatTable[] = {IL_RGBA, IL_RGB, IL_LUMINANCE,
 				     IL_LUMINANCE, IL_RGBA, IL_RGBA};
 unsigned int bytesPerPixel [] = {4,3,1,2,4,4};
 
-Texture::Texture(void * data, int width, int height,
+Texture::Texture(int width, int height,void * data,
 		     Interpolation interpolation,
 		     TextureWrap wrap, 
 		     PixelFormat pixelFormat,  
@@ -104,7 +106,7 @@ Texture Texture::FromFile(std::string path,
   void * data = ilGetData();
   int width = ilGetInteger(IL_IMAGE_WIDTH);
   int height = ilGetInteger(IL_IMAGE_HEIGHT);
-  Texture tex = Texture(data,width,height, 
+  Texture tex = Texture(width,height,data,
 			interpolation,wrap,
 			pixelFormat,dataType);
   ilDeleteImage(texid);
