@@ -38,6 +38,11 @@ enum class PixelFormat{
     Depth32 = 9
 };
 
+enum class DataFormat{
+	RGBA=0,
+	Depth=1,
+};
+
 
 class Texture{
   class TextureObject{
@@ -57,6 +62,7 @@ public:
 	    Interpolation interpolation = Interpolation::Linear,
 	    TextureWrap wrap = TextureWrap::Repeat, 
 	    PixelFormat pixelFormat = PixelFormat::RGBA,  
+	    DataFormat dataFormat=DataFormat::RGBA,
 	    TextureDataType dataType = TextureDataType::UnsignedByte);
 
   static Texture FromFile(std::string path,

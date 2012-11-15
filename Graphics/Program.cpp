@@ -11,6 +11,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <string>
 
 ShaderObject::ShaderObject(int _gl_ref):
   gl_ref(_gl_ref)
@@ -66,6 +67,9 @@ Shader::Shader(const char * shader_code,ShaderType type):glReference(ShaderObjec
     case ShaderType::Geometry: strShaderType = "geometry"; break;
     case ShaderType::Fragment: strShaderType = "fragment"; break;
     }
+    
+    std::cout<<"shader code "<<std::string(shader_code)<<"\n";
+    
     fprintf(stderr, "Compile failure in %s shader:\n%s\n", strShaderType, strInfoLog);
     delete[] strInfoLog;
   }

@@ -22,15 +22,16 @@ public:
   
   void addColorBuffer(GLuint width,GLuint height,PixelFormat internal_format,Interpolation interpolation=Interpolation::Nearest,TextureWrap wrap=TextureWrap::ClampToEdge);
   
-  void addDepthBuffer(GLuint width,GLuint height,PixelFormat internal_format=PixelFormat::Grey,Interpolation interpolation=Interpolation::Nearest,TextureWrap wrap=TextureWrap::ClampToEdge);
+  void addDepthBuffer(GLuint width,GLuint height,PixelFormat internal_format=PixelFormat::Depth,Interpolation interpolation=Interpolation::Nearest,TextureWrap wrap=TextureWrap::ClampToEdge);
   
   void addStencilBuffer(GLuint width,GLuint height,Interpolation interpolation=Interpolation::Nearest,TextureWrap wrap=TextureWrap::ClampToEdge);
   
   
-  void bindFramebuffer();
-  static void bindScreenbuffer();
+  void bindFrameBuffer();
+  static void bindScreenBuffer();
   
-  static void ClearColorBuffer(GLfloat red=0.0f,GLfloat green=0.0f,GLfloat blue=0.0f,GLfloat alpha=0.0f);
+  static void clearColorBuffer(GLfloat red=0.0f,GLfloat green=0.0f,GLfloat blue=0.0f,GLfloat alpha=0.0f);
+  static void clearDepthBuffer(){glClear( GL_DEPTH_BUFFER_BIT);}
   
   Texture stencil_buffer,depth_buffer;
   std::vector<Texture> render_buffers;
