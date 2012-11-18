@@ -88,6 +88,23 @@ void FrameBuffer::addDepthBuffer(GLuint width,GLuint height,PixelFormat internal
 	
 	GLenum FBOstatus=glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	
+	if(FBOstatus != GL_FRAMEBUFFER_COMPLETE){
+		throw "Error creating FBO";
+	}
+	
+	bindScreenbuffer();
+
+}
+
+void FrameBuffer::addDepthStencilBuffer(GLuint width,GLuint height,Interpolation interpolation,TextureWrap wrap){
+	bindFramebuffer();
+	
+	depth_buffer=Texture(width,height,NULL,interpolation,wrap,PixelFormat::Depth24Stencil8);
+	glFramebufferTexture2D(GL_FRAMEBUFFER,GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,depth_buffer.unsafeOpenGLTextureRef(),0);
+	
+	
+	GLenum FBOstatus=glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	
 	if(FBOstatus != GL_FRAMEBUFFER_COMPLETE)
 		std::cout<<"Cannot make shadow map\n";
 	

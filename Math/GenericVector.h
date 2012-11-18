@@ -8,6 +8,11 @@ public:
   T & operator[](unsigned int i){
     return data[i];
   }
+  Vec(){
+    for(int i = 0; i < N;i++){
+      data[i] = 0;
+    }
+  }
   
   template<typename T2>
     Vec<T2,N> As(){

@@ -35,7 +35,8 @@ enum class PixelFormat{
     Depth = 6,
     Depth16 = 7,
     Depth24 = 8,
-    Depth32 = 9
+    Depth32 = 9,
+    Depth24Stencil8 = 10
 };
 
 
@@ -53,7 +54,12 @@ public:
   int width, height, n_tex; 
   
   
-  Texture(int width, int height,void * data=NULL,
+  Texture(int width, int height,void * data,
+	    Interpolation interpolation = Interpolation::Linear,
+	    TextureWrap wrap = TextureWrap::Repeat, 
+	    PixelFormat pixelFormat = PixelFormat::RGBA,  
+	    TextureDataType dataType = TextureDataType::UnsignedByte);
+  Texture(int width, int height,
 	    Interpolation interpolation = Interpolation::Linear,
 	    TextureWrap wrap = TextureWrap::Repeat, 
 	    PixelFormat pixelFormat = PixelFormat::RGBA,  

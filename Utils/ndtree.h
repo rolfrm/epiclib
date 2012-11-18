@@ -75,14 +75,19 @@ public:
     }
 
     if(outside_range(p)){
-      IVec<D> cp = p >> 1;
+      IVec<D> cp = p;
+      for(int i = 0; i < 3;i++){
+	cp[i] = cp[i] >> 1;
+      }
       	    
       container = parent->relative_node(cp,create);
       
       if(container == NULL){
 	return NULL;
       }
-      p = p & 1;
+      for(int i = 0; i < 3;i++){
+	p[i] = p[i] & 1;
+      }
 
     }
     
@@ -132,6 +137,14 @@ public:
     int index = ivec_to_index(p);
     //std::cout << index << "\n";
     return get_child(index,create);
+  }
+  bool HasChildren(){
+    for(int i = 0; i < 8;i++){
+      if(children[i] != NULL){
+	return true;
+      }
+    }
+    return false;
   }
 
 };

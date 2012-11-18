@@ -12,6 +12,7 @@ shader(Shader::FromFile("simple.vert", ShaderType::Vertex),
 }
 
 void FlatShader3D::update(){
+  shader.UseProgram();
   total = projection * camera * model;
   shader.setUniformMat4x4("T", total.AsPtr());
 }

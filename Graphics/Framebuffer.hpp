@@ -24,6 +24,9 @@ public:
   
   void addDepthBuffer(GLuint width,GLuint height,PixelFormat internal_format=PixelFormat::Grey,Interpolation interpolation=Interpolation::Nearest,TextureWrap wrap=TextureWrap::ClampToEdge);
   
+  void addDepthStencilBuffer(GLuint width,GLuint height,Interpolation interpolation=Interpolation::Nearest,TextureWrap wrap=TextureWrap::ClampToEdge);
+  
+
   void addStencilBuffer(GLuint width,GLuint height,Interpolation interpolation=Interpolation::Nearest,TextureWrap wrap=TextureWrap::ClampToEdge);
   
   
