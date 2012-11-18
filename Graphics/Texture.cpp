@@ -29,11 +29,13 @@ unsigned int ilDataTypeTable [] = {IL_UNSIGNED_BYTE};
 unsigned int ilPixelFormatTable[] = {IL_RGBA, IL_RGB, IL_LUMINANCE, 
 				     IL_LUMINANCE, IL_RGBA, IL_RGBA};
 unsigned int bytesPerPixel [] = {4,3,1,2,4,4};
+unsigned int dataFormatTable[] = {GL_RGBA,GL_DEPTH_COMPONENT};
 
 Texture::Texture(int width, int height,void * data,
 		     Interpolation interpolation,
 		     TextureWrap wrap, 
 		     PixelFormat pixelFormat,  
+		     DataFormat dataFormat,
 		     TextureDataType dataType){
   unsigned int glRef;
   this->width = width;
@@ -48,9 +50,9 @@ Texture::Texture(int width, int height,void * data,
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,wrapTable[(int)wrap]);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapTable[(int)wrap]);
 
-  glTexImage2D(GL_TEXTURE_2D, 0, bytesPerPixel[(int)pixelFormat], 
+  glTexImage2D(GL_TEXTURE_2D, 0, pixelFormatTable[(int)pixelFormat], 
 	       width, height, 
-	       0, pixelFormatTable[(int)pixelFormat],
+	       0, dataFormatTable[(int)dataFormat],
 	       dataTypeTable[(int)dataType],data );
 
   this->width = width;
@@ -113,7 +115,7 @@ Texture Texture::FromFile(std::string path,
   int height = ilGetInteger(IL_IMAGE_HEIGHT);
   Texture tex = Texture(width,height,data,
 			interpolation,wrap,
-			pixelFormat,dataType);
+			pixelFormat);
   ilDeleteImage(texid);
   
   return tex;

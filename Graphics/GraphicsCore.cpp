@@ -65,6 +65,7 @@ void SwapBuffers(){
 GLint UpdateGraphics(){
 	glfwSwapBuffers();
 	glBindFramebuffer(GL_FRAMEBUFFER,0);
+	glClearColor(0.0f,0.0f,0.0f,0.0f);
 	glClear( GL_COLOR_BUFFER_BIT);
 	glClear(GL_STENCIL_BUFFER_BIT);
 	glClear( GL_DEPTH_BUFFER_BIT);
