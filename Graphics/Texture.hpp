@@ -36,7 +36,8 @@ enum class PixelFormat{
     Depth16 = 7,
     Depth24 = 8,
     Depth32 = 9,
-    Depth24Stencil8 = 10
+    Depth24Stencil8 = 10,
+    Stencil8 = 11
 };
 
 enum class DataFormat{
@@ -62,7 +63,8 @@ public:
   Texture(int width, int height,void * data,
 	    Interpolation interpolation = Interpolation::Linear,
 	    TextureWrap wrap = TextureWrap::Repeat, 
-	    PixelFormat pixelFormat = PixelFormat::RGBA,  
+	    PixelFormat pixelFormat = PixelFormat::RGBA,
+	  DataFormat dataFormat = DataFormat::RGBA,
 	    TextureDataType dataType = TextureDataType::UnsignedByte);
   Texture(int width, int height,
 	    Interpolation interpolation = Interpolation::Linear,
@@ -74,7 +76,7 @@ public:
   static Texture FromFile(std::string path,
 			  Interpolation interpolation = Interpolation::Linear,
 			  TextureWrap wrap = TextureWrap::Repeat, 
-			  PixelFormat pixelFormat = PixelFormat::RGBA,  
+			  PixelFormat pixelFormat = PixelFormat::RGBA,
 			  TextureDataType dataType = TextureDataType::UnsignedByte);
 
   Texture();

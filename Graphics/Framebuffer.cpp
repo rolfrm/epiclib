@@ -12,142 +12,143 @@
 #include "Framebuffer.hpp"
 #include "GraphicsCore.hpp"
 
+frameBufferObject::frameBufferObject(){
+  ref = -1;
+}
+
+frameBufferObject::frameBufferObject(int gl_ref){
+  ref = gl_ref;
+}
+
+int & frameBufferObject::GetGLRef(){
+  return ref;
+}
+
+void frameBufferObject::Dispose(){
+  unsigned int uref = ref;
+  glDeleteFramebuffers(1,&uref);
+}
+
+
 FrameBuffer::FrameBuffer(){
-	glGenFramebuffers(1,&reference);
-	bindFrameBuffer();
-	
-	glDrawBuffer(GL_NONE);
-	glReadBuffer(GL_NONE);
-	
-	//addDepthBuffer(800,800);
-	
-	bindScreenBuffer();
-
-	count=new GLuint;
-	*count=1;
-	
-	
+  depth_stencil_attachment = -1;
 }
 
-/*
-FrameBuffer::FrameBuffer(GLuint width,GLuint height,GLuint internal_format,GLuint texture_copies,GLuint interpolation,GLuint wrap){
-  render_buffer=new Texture2D(width,height,internal_format,texture_copies,interpolation,wrap);
+
+void FrameBuffer::genRenderBuffer(int width, int height, 
+		      PixelFormat iFormat, 
+		      Interpolation ipol, 
+				  TextureWrap wrap,int attachmentType){
+
+  if(fbo.Get().GetGLRef() == -1){
+    unsigned int ref;
+    glGenFramebuffers(1,&ref);
+    fbo = frameBufferObject(ref);
+  }
+
+  bindFrameBuffer();
+	
+  Texture tempTex(width,height,NULL,ipol,wrap,iFormat);
+  glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER,attachmentType,GL_TEXTURE_2D,tempTex.unsafeOpenGLTextureRef(),0);
+  GLenum FBOstatus=glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER);
+	
+  if(FBOstatus != GL_FRAMEBUFFER_COMPLETE){
+    throw "Error creating FBO";
+  }
+  if(attachmentType == GL_DEPTH_ATTACHMENT || attachmentType == GL_DEPTH_STENCIL_ATTACHMENT || attachmentType == GL_STENCIL_ATTACHMENT){
+    depth_stencil = tempTex;
+    depth_stencil_attachment = attachmentType;
+  }else{
+    int idx = attachmentType - GL_COLOR_ATTACHMENT0;
+    render_buffers[idx] = tempTex;
+  }
+}
+
+void FrameBuffer::addDepthStencilBuffer(int width ,int height, PixelFormat internalFormat, 
+		 Interpolation interpolation,
+			    TextureWrap wrap){
+
   
-  glGenFramebuffers(1,&reference);
-  BindFramebuffer();
-
-  for(GLuint i=0;i<render_buffer->n_tex;i++){
-	  glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0+i,GL_TEXTURE_2D,render_buffer->reference[i],0);
+  int attachmentType = -1;
+  switch(internalFormat){
+  case(PixelFormat::Depth):
+  case(PixelFormat::Depth16):
+  case(PixelFormat::Depth24):
+  case(PixelFormat::Depth32):
+    attachmentType = GL_DEPTH_ATTACHMENT;break;
+  case(PixelFormat::Depth24Stencil8):
+    attachmentType = GL_DEPTH_STENCIL_ATTACHMENT;break;
+  case(PixelFormat::Stencil8):
+    attachmentType = GL_STENCIL_ATTACHMENT;break;
+  }
+  if(attachmentType == -1){
+    throw "Wrong attachment type";
   }
 
-  BindScreenBuffer();
-
-  count=new GLuint;
-  *count=1;
 }
-*/
+void FrameBuffer::addColorBuffer(int width ,int height, int channel, 
+				 PixelFormat internalFormat, 
+				 Interpolation interpolation,
+				 TextureWrap wrap){
 
-FrameBuffer::FrameBuffer(const FrameBuffer & original){
-  render_buffers=original.render_buffers;
-  depth_buffer=original.depth_buffer;
-  stencil_buffer=original.stencil_buffer;
-  reference=original.reference;
-  count=original.count;
-  *count+=1;
-}
-
-FrameBuffer::~FrameBuffer(){
-  *count-=1;
-  if(*count==0){
-    delete count;
-    glDeleteFramebuffers(1,&reference);
-  }
-}
-
-void FrameBuffer::addColorBuffer(GLuint width,GLuint height,PixelFormat internal_format,Interpolation interpolation,TextureWrap wrap){
-	bindFrameBuffer();
-	
-	if(render_buffers.size()==0){
-		glDrawBuffer(36064);
-		glReadBuffer(36064);
-	}
-	
-	Texture tempTex(width,height,NULL,interpolation,wrap,internal_format);
-	
-	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER,GL_COLOR_ATTACHMENT0+render_buffers.size(),GL_TEXTURE_2D,tempTex.unsafeOpenGLTextureRef(),0);	
-
-	GLenum FBOstatus=glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER);
-	
-	if(FBOstatus != GL_FRAMEBUFFER_COMPLETE)
-		std::cout<<"Cannot attach color buffer\n";
-		
-	
-	
-	render_buffers.push_back(tempTex);
-	
-	std::vector<GLenum> draw_buffers;
-	
-	for(int i=0;i<render_buffers.size();i++){
-		draw_buffers.push_back(GL_COLOR_ATTACHMENT0+i);
-	}
-	
-	glDrawBuffers(draw_buffers.size(),draw_buffers.data());
-	
-	bindScreenBuffer();
-	
-}
-
-void FrameBuffer::addDepthBuffer(GLuint width,GLuint height,PixelFormat internal_format,Interpolation interpolation,TextureWrap wrap){
-	bindFrameBuffer();
-	
-	
-	
-	depth_buffer=Texture(width,height,NULL,interpolation,wrap,internal_format,DataFormat::Depth);
-	depth_buffer.Unbind(0);
-	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER,GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,depth_buffer.unsafeOpenGLTextureRef(),0);
-	
-	GLenum FBOstatus=glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER);
-	
-	if(FBOstatus != GL_FRAMEBUFFER_COMPLETE){
-		throw "Error creating FBO";
-	}
-	
-	bindScreenbuffer();
+  
+  genRenderBuffer(width,height,internalFormat,interpolation,wrap,GL_COLOR_ATTACHMENT0 + channel);
 
 }
 
-void FrameBuffer::addDepthStencilBuffer(GLuint width,GLuint height,Interpolation interpolation,TextureWrap wrap){
-	bindFramebuffer();
-	
-	depth_buffer=Texture(width,height,NULL,interpolation,wrap,PixelFormat::Depth24Stencil8);
-	glFramebufferTexture2D(GL_FRAMEBUFFER,GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,depth_buffer.unsafeOpenGLTextureRef(),0);
-	
-	
-	GLenum FBOstatus=glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	
-	if(FBOstatus != GL_FRAMEBUFFER_COMPLETE)
-		std::cout<<"Cannot attach depth buffer\n";
-	
-	bindScreenBuffer();
-
-}
 
 
 void FrameBuffer::bindFrameBuffer(){
-  glBindFramebuffer(GL_DRAW_FRAMEBUFFER,reference);
+  unsigned int glRef = fbo.Get().GetGLRef();
+  /*if(current_buffer.fbo.Get().GetGLRef() == glRef){
+    return;
+    }*/
+  
+  if(glRef == -1){
+    bindScreenBuffer();
+    current_buffer = *this;
+    return;
+  }
+
+  
+
+
+
+  unsigned int buffers[20];
+  int count = 0;
+  if(depth_stencil_attachment != -1){
+    buffers[count++] = depth_stencil_attachment; 
+  }
+  for(auto it = render_buffers.begin();it != render_buffers.end();it++){
+    int key = it->first;
+    buffers[count++] = GL_COLOR_ATTACHMENT0 + it->first;
+  }
+   glBindFramebuffer(GL_DRAW_FRAMEBUFFER,fbo.Get().GetGLRef());
+   glDrawBuffers(count,buffers);
 
   
   if(render_buffers.size()!=0){
   	
-	glViewport(0,0,render_buffers[0].width,render_buffers[0].height);
+    glViewport(0,0,render_buffers[0].width,render_buffers[0].height);
 	
-	}
-  else if(depth_buffer.width!=0)
-    glViewport(0,0,depth_buffer.width,depth_buffer.height);
+  }
+  else if(depth_stencil.width!=0){
+    glViewport(0,0,depth_stencil.width,depth_stencil.height);
+  }
+  if(render_buffers.size()==0){
+    glDrawBuffer(GL_COLOR_ATTACHMENT0);
+    glReadBuffer(GL_COLOR_ATTACHMENT0);
+    }
+  current_buffer = *this;
 }
 
 void FrameBuffer::bindScreenBuffer(){
+  
+  //unsigned int buffers[] = {GL_FRONT_AND_BACK};
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER,0);
+  /*glDrawBuffers(1,buffers);
+  glReadBuffer(GL_FRONT_AND_BACK);
+  glDrawBuffer(GL_FRONT_AND_BACK);*/
   glViewport(0,0,getWidth(),getHeight());
 }
 
@@ -155,3 +156,11 @@ void FrameBuffer::clearColorBuffer(GLfloat red,GLfloat green,GLfloat blue,GLfloa
   glClearColor(red,green,blue,alpha);
   glClear( GL_COLOR_BUFFER_BIT);
 }
+
+void FrameBuffer::Clear(){
+  glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+}
+
+
+FrameBuffer FrameBuffer::current_buffer;
+FrameBuffer FrameBuffer::screenBuffer;

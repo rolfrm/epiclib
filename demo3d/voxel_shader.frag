@@ -99,7 +99,7 @@ float calc_rec_len(float d, float p){
 }
 
 
-#define MAX_IT 50000
+#define MAX_IT 20
 void main(){
     
     vec3 dir = normalize(vec3(direction.xy,-direction.z));

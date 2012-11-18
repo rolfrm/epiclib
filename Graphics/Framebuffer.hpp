@@ -7,38 +7,64 @@
 
 #ifndef FRAMEBUFFER_HPP_
 #define FRAMEBUFFER_HPP_
+#include "../Utils/SharedPtr.h"
 
 #include <GL/glew.h>
 #include <GL/gl.h>
 #include <vector>
-
+#include <map>
 #include "Texture.hpp"
 
-class FrameBuffer{
+class frameBufferObject{
+  int ref;
 public:
+  frameBufferObject();
+  frameBufferObject(int gl_ref);
+  int & GetGLRef();
+  void Dispose();
+};
+
+
+class FrameBuffer{
+  SharedPtr<frameBufferObject> fbo;
+  void genRenderBuffer(int width, int height, 
+		      PixelFormat iFormat, 
+		      Interpolation ipol, 
+		       TextureWrap wrap, 
+		       int attachmentType);
+  static FrameBuffer current_buffer;
+  
+public:
+  static FrameBuffer screenBuffer;
   FrameBuffer();
-  FrameBuffer(const FrameBuffer & original);
-  ~FrameBuffer();
+
+  void addBuffer(int width ,int height, PixelFormat internalFormat, 
+		 Interpolation interpolation = Interpolation::Nearest,
+		 TextureWrap wrap = TextureWrap::ClampToEdge);
+
   
-  void addColorBuffer(GLuint width,GLuint height,PixelFormat internal_format,Interpolation interpolation=Interpolation::Nearest,TextureWrap wrap=TextureWrap::ClampToEdge);
-  
-  void addDepthBuffer(GLuint width,GLuint height,PixelFormat internal_format=PixelFormat::Depth,Interpolation interpolation=Interpolation::Nearest,TextureWrap wrap=TextureWrap::ClampToEdge);
-  
-  void addDepthStencilBuffer(GLuint width,GLuint height,Interpolation interpolation=Interpolation::Nearest,TextureWrap wrap=TextureWrap::ClampToEdge);
+  void addColorBuffer(int width,int height,int channel,
+		      PixelFormat internal_format,
+		      Interpolation interpolation=Interpolation::Nearest,
+		      TextureWrap wrap=TextureWrap::ClampToEdge);
   
 
-  void addStencilBuffer(GLuint width,GLuint height,Interpolation interpolation=Interpolation::Nearest,TextureWrap wrap=TextureWrap::ClampToEdge);
+  void addDepthStencilBuffer(int width,int height,
+			     PixelFormat internalFormat,
+			     Interpolation interpolation=Interpolation::Nearest,
+			     TextureWrap wrap=TextureWrap::ClampToEdge);
   
-  
+
   void bindFrameBuffer();
   static void bindScreenBuffer();
   
-  static void clearColorBuffer(GLfloat red=0.0f,GLfloat green=0.0f,GLfloat blue=0.0f,GLfloat alpha=0.0f);
+  static void clearColorBuffer(GLfloat red=0.0f,GLfloat green=0.0f,
+			       GLfloat blue=0.0f,GLfloat alpha=0.0f);
   static void clearDepthBuffer(){glClear( GL_DEPTH_BUFFER_BIT);}
-  
-  Texture stencil_buffer,depth_buffer;
-  std::vector<Texture> render_buffers;
-  GLuint * count,reference;
+  void Clear();
+  int depth_stencil_attachment;
+  Texture depth_stencil;
+  std::map<int, Texture> render_buffers;
 };
 
 #endif /* FRAMEBUFFER_HPP_ */

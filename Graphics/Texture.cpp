@@ -66,7 +66,8 @@ Texture::Texture(int width,int height,
 		     Interpolation interpolation,
 		     TextureWrap wrap, 
 		     PixelFormat pixelFormat,  
-		 TextureDataType dataType):Texture(width,height,NULL,interpolation,wrap,pixelFormat,dataType){
+		 DataFormat dataFormat,
+		 TextureDataType dataType):Texture(width,height,NULL,interpolation,wrap,pixelFormat,dataFormat,dataType){
 
 }
 
