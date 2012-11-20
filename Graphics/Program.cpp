@@ -119,7 +119,9 @@ Program::~Program(){
   if(count==0){
     delete count;
     
-    glDeleteProgram(reference);
+    
+    if(reference!=0)
+	    glDeleteProgram(reference);
   }
 }
 
