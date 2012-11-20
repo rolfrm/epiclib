@@ -8,45 +8,10 @@ TODO: Avoid copy paste-code, but almost done
 #ifndef NULL
 #define NULL 0
 #endif
-
+#include "../Math/GenericVector.h"
 template<int N>
-class IVec{
-public:
-  int data[N];
-  IVec<N> operator/(int scale){
-    IVec<N> out;
-    for(int i = 0; i <N;i++){
-      out.data[i] = data[i]/scale;
-    }
-    return out;
-  }
+using IVec = Vec<int,N>;
 
-  IVec operator+(IVec<N> other){
-    IVec<N> out;
-    for(int i = 0; i< N;i++){
-      out.data[i] = other.data[i] + data[i];
-    }
-    return out;
-  }
-
-  IVec operator>>(int bits){
-    IVec<N> out;
-    for(int i = 0; i < N ; i++){
-      out.data[i] = data[i] >> bits;
-    }
-    return out;
-  }
-
-  IVec operator&(int bits){
-    IVec<N> out;
-    for(int i = 0; i < N ; i++){
-      out.data[i] = data[i] & bits;
-    }
-    return out;
-  }
-
-
-};
 #include <iostream>
 template<class T, int D>
 class Node{
@@ -110,14 +75,19 @@ public:
     }
 
     if(outside_range(p)){
-      IVec<D> cp = p >> 1;
+      IVec<D> cp = p;
+      for(int i = 0; i < 3;i++){
+	cp[i] = cp[i] >> 1;
+      }
       	    
       container = parent->relative_node(cp,create);
       
       if(container == NULL){
 	return NULL;
       }
-      p = p & 1;
+      for(int i = 0; i < 3;i++){
+	p[i] = p[i] & 1;
+      }
 
     }
     
@@ -168,10 +138,13 @@ public:
     //std::cout << index << "\n";
     return get_child(index,create);
   }
+  bool HasChildren(){
+    for(int i = 0; i < 8;i++){
+      if(children[i] != NULL){
+	return true;
+      }
+    }
+    return false;
+  }
 
 };
-
-IVec<3> make_vec3(int x, int y, int z);
-IVec<2> make_vec2(int x, int y);
-IVec<4> make_vec4(int x, int y , int z, int w);
-IVec<1> make_vec1(int x);

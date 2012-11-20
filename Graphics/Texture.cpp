@@ -24,7 +24,7 @@ unsigned int pixelFormatTable[] = {GL_RGBA, GL_RGB, GL_LUMINANCE,
 				   GL_LUMINANCE16, GL_RGBA32F, 
 				   GL_RGBA16F,GL_DEPTH_COMPONENT, 
 				   GL_DEPTH_COMPONENT16,GL_DEPTH_COMPONENT24,
-GL_DEPTH_COMPONENT32};
+				   GL_DEPTH_COMPONENT32,GL_DEPTH24_STENCIL8};
 unsigned int ilDataTypeTable [] = {IL_UNSIGNED_BYTE};
 unsigned int ilPixelFormatTable[] = {IL_RGBA, IL_RGB, IL_LUMINANCE, 
 				     IL_LUMINANCE, IL_RGBA, IL_RGBA};
@@ -62,8 +62,14 @@ Texture::Texture(int width, int height,void * data,
   textureObject = TextureObject(glRef);
 }
 
-#include <iostream>
+Texture::Texture(int width,int height,
+		     Interpolation interpolation,
+		     TextureWrap wrap, 
+		     PixelFormat pixelFormat,  
+		 DataFormat dataFormat,
+		 TextureDataType dataType):Texture(width,height,NULL,interpolation,wrap,pixelFormat,dataFormat,dataType){
 
+}
 
 void Texture::Bind(int channel){
   if((*textureObject).glReference == -1){

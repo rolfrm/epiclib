@@ -18,11 +18,27 @@
 #include "Tetragon.h"
 #include "GameObject.h"
 #include "World.h"
-
+#include "../Utils/ndtree.h"
 template<typename T>
 double D(T v){
   return (double) v;
 }
+
+
+class octreeNode{
+  Vec<float,4> color;
+};
+
+using VoxelTree = Node<octreeNode,3>;
+
+
+
+
+void RenderVoxelTree(VoxelTree * vtree, FlatShader3D & flatShader){
+  
+
+}
+
 
 class Context{
 public:
@@ -256,7 +272,6 @@ int main_test(){
   go->aabb.mass = 100000.0;
   go->Tetra.TRS = TMatrix(vec(10.0f,0.0f,10.0f)) * SMatrix(vec(10.0f,1.0f,10.0f));
   world.InsertObject(go);
-
 
   go = new GameObjectTest(context);
   go->GravityBound = false;
