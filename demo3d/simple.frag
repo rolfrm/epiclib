@@ -4,5 +4,5 @@ varying vec3 pos;
 uniform float y;
 void main(){
      
-    gl_FragColor = vec4(texture2D(tex,pos.xz).rgb,1);
+    gl_FragColor = texture2D(tex,pos.xy);
 }    

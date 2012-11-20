@@ -38,7 +38,8 @@ FrameBuffer::FrameBuffer(){
 void FrameBuffer::genRenderBuffer(int width, int height, 
 		      PixelFormat iFormat, 
 		      Interpolation ipol, 
-				  TextureWrap wrap,int attachmentType){
+				  TextureWrap wrap,int attachmentType,
+				  DataFormat tdtype){
 
   if(fbo.Get().GetGLRef() == -1){
     unsigned int ref;
@@ -48,11 +49,12 @@ void FrameBuffer::genRenderBuffer(int width, int height,
 
   bindFrameBuffer();
 	
-  Texture tempTex(width,height,NULL,ipol,wrap,iFormat);
+  Texture tempTex(width,height,NULL,ipol,wrap,iFormat,tdtype);
   glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER,attachmentType,GL_TEXTURE_2D,tempTex.unsafeOpenGLTextureRef(),0);
   GLenum FBOstatus=glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER);
 	
   if(FBOstatus != GL_FRAMEBUFFER_COMPLETE){
+    std::cout << FBOstatus << "\n";
     throw "Error creating FBO";
   }
   if(attachmentType == GL_DEPTH_ATTACHMENT || attachmentType == GL_DEPTH_STENCIL_ATTACHMENT || attachmentType == GL_STENCIL_ATTACHMENT){
@@ -70,13 +72,16 @@ void FrameBuffer::addDepthStencilBuffer(int width ,int height, PixelFormat inter
 
   
   int attachmentType = -1;
+  DataFormat dformat = DataFormat::Depth;
   switch(internalFormat){
   case(PixelFormat::Depth):
   case(PixelFormat::Depth16):
   case(PixelFormat::Depth24):
   case(PixelFormat::Depth32):
+    
     attachmentType = GL_DEPTH_ATTACHMENT;break;
   case(PixelFormat::Depth24Stencil8):
+    dformat = DataFormat::DepthStencil;
     attachmentType = GL_DEPTH_STENCIL_ATTACHMENT;break;
   case(PixelFormat::Stencil8):
     attachmentType = GL_STENCIL_ATTACHMENT;break;
@@ -84,7 +89,7 @@ void FrameBuffer::addDepthStencilBuffer(int width ,int height, PixelFormat inter
   if(attachmentType == -1){
     throw "Wrong attachment type";
   }
-
+  genRenderBuffer(width,height,internalFormat,interpolation,wrap,attachmentType,dformat);
 }
 void FrameBuffer::addColorBuffer(int width ,int height, int channel, 
 				 PixelFormat internalFormat, 
@@ -111,9 +116,6 @@ void FrameBuffer::bindFrameBuffer(){
   }
 
   
-
-
-
   unsigned int buffers[20];
   int count = 0;
   if(depth_stencil_attachment != -1){
@@ -155,6 +157,10 @@ void FrameBuffer::bindScreenBuffer(){
 void FrameBuffer::clearColorBuffer(GLfloat red,GLfloat green,GLfloat blue,GLfloat alpha){
   glClearColor(red,green,blue,alpha);
   glClear( GL_COLOR_BUFFER_BIT);
+}
+
+void FrameBuffer::Bind(){
+  bindFrameBuffer();
 }
 
 void FrameBuffer::Clear(){

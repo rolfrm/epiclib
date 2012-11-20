@@ -31,7 +31,8 @@ class FrameBuffer{
 		      PixelFormat iFormat, 
 		      Interpolation ipol, 
 		       TextureWrap wrap, 
-		       int attachmentType);
+		       int attachmentType,
+		       DataFormat tdtype = DataFormat::RGBA);
   static FrameBuffer current_buffer;
   
 public:
@@ -56,6 +57,7 @@ public:
   
 
   void bindFrameBuffer();
+  void Bind();
   static void bindScreenBuffer();
   
   static void clearColorBuffer(GLfloat red=0.0f,GLfloat green=0.0f,

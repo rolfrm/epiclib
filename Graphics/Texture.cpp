@@ -29,7 +29,7 @@ unsigned int ilDataTypeTable [] = {IL_UNSIGNED_BYTE};
 unsigned int ilPixelFormatTable[] = {IL_RGBA, IL_RGB, IL_LUMINANCE, 
 				     IL_LUMINANCE, IL_RGBA, IL_RGBA};
 unsigned int bytesPerPixel [] = {4,3,1,2,4,4};
-unsigned int dataFormatTable[] = {GL_RGBA,GL_DEPTH_COMPONENT};
+unsigned int dataFormatTable[] = {GL_RGBA,GL_DEPTH_COMPONENT,GL_DEPTH_STENCIL};
 
 Texture::Texture(int width, int height,void * data,
 		     Interpolation interpolation,

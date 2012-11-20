@@ -43,6 +43,7 @@ enum class PixelFormat{
 enum class DataFormat{
 	RGBA=0,
 	Depth=1,
+	DepthStencil=2
 };
 
 
