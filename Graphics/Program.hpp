@@ -36,6 +36,11 @@ class Program{
   void init(Shader vertexShader, Shader fragmentShader);
   
 public:
+	Program(){
+		count = new unsigned int;
+		*count=1;
+		reference=0;
+	};
 	Program(Shader vertex_shader,Shader fragment_shader);
 	Program(const char * path_vertex_shader,const char * path_fragment_shader);
 	Program(const Program & original);
