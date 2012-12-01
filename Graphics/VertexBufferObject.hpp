@@ -43,7 +43,11 @@ public:
 
   VertexBufferObject();
 
+  
   void BindBuffer(unsigned int index);
+  void Bind(int index){
+    BindBuffer(index);
+  }
   unsigned int n_vertex,dim_vertex, dataType;
 
   static void DrawBuffers(DrawMethod drawMethod,int nof);

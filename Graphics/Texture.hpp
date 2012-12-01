@@ -81,11 +81,12 @@ public:
 			  TextureDataType dataType = TextureDataType::UnsignedByte);
 
   Texture();
-  
+  bool HasData();
+  void Release();
   void Bind(int channel);
   void Unbind(int channel);
   void Write2Texture(int width,int height,int x,int y,PixelFormat pixelFormat, TextureDataType type,void * data);  
-  int unsafeOpenGLTextureRef(){return textureObject.Get().glReference;} //Be cautious when using this function, the reference might get deleted if all instances of the Texture class are deleted
+  int unsafeOpenGLTextureRef(){return textureObject.Get().glReference;} //Be cautious when using this function, the reference might get deleted
 };
 
 

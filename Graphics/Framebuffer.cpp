@@ -46,13 +46,12 @@ void FrameBuffer::genRenderBuffer(int width, int height,
     glGenFramebuffers(1,&ref);
     fbo = frameBufferObject(ref);
   }
-
+  
   bindFrameBuffer();
-	
+  
   Texture tempTex(width,height,NULL,ipol,wrap,iFormat,tdtype);
   glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER,attachmentType,GL_TEXTURE_2D,tempTex.unsafeOpenGLTextureRef(),0);
   GLenum FBOstatus=glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER);
-	
   if(FBOstatus != GL_FRAMEBUFFER_COMPLETE){
     std::cout << FBOstatus << "\n";
     throw "Error creating FBO";
@@ -114,7 +113,6 @@ void FrameBuffer::bindFrameBuffer(){
     current_buffer = *this;
     return;
   }
-
   
   unsigned int buffers[20];
   int count = 0;
@@ -126,9 +124,10 @@ void FrameBuffer::bindFrameBuffer(){
     buffers[count++] = GL_COLOR_ATTACHMENT0 + it->first;
   }
    glBindFramebuffer(GL_DRAW_FRAMEBUFFER,fbo.Get().GetGLRef());
-   glDrawBuffers(count,buffers);
+   if(count != 0){
+     //glDrawBuffers(count,buffers);
+   }
 
-  
   if(render_buffers.size()!=0){
   	
     glViewport(0,0,render_buffers[0].width,render_buffers[0].height);
@@ -137,10 +136,10 @@ void FrameBuffer::bindFrameBuffer(){
   else if(depth_stencil.width!=0){
     glViewport(0,0,depth_stencil.width,depth_stencil.height);
   }
-  if(render_buffers.size()==0){
+  /*if(render_buffers.size()==0){
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
     glReadBuffer(GL_COLOR_ATTACHMENT0);
-    }
+    }*/
   current_buffer = *this;
 }
 
@@ -164,6 +163,7 @@ void FrameBuffer::Bind(){
 }
 
 void FrameBuffer::Clear(){
+  glClearColor(0,0,0,0);
   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 

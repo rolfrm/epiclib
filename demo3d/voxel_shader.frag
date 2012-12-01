@@ -73,9 +73,6 @@ vec4 idxGetRGBData(int cell, int child_indx){
      return texelFetch(map,idxToIvec(cell + child_indx + 3),0);
 }
 
-
-
-
 int getParent(int cellindex){
     uint parentU =  colorToUInt(getDataIdx(cellindex + 1));
     return int(parentU);

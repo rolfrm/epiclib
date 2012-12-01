@@ -31,6 +31,13 @@ unsigned int ilPixelFormatTable[] = {IL_RGBA, IL_RGB, IL_LUMINANCE,
 unsigned int bytesPerPixel [] = {4,3,1,2,4,4};
 unsigned int dataFormatTable[] = {GL_RGBA,GL_DEPTH_COMPONENT,GL_DEPTH_STENCIL};
 
+bool Texture::HasData(){
+  return (*textureObject).glReference != -1;
+}
+void Texture::Release(){
+  textureObject = TextureObject();
+}
+
 Texture::Texture(int width, int height,void * data,
 		     Interpolation interpolation,
 		     TextureWrap wrap, 

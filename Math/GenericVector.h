@@ -34,7 +34,7 @@ public:
   Vec<T,N> operator opr (Vec<T,N> other){	\
     Vec<T,N> out;\
     for(int i = 0; i< N;i++){\
-      out.data[i] = other.data[i] opr data[i];\
+      out.data[i] = data[i] opr other.data[i];\
     }\
     return out;\
   }
@@ -116,5 +116,16 @@ T VectorLength(Vec<T,d> inVec){
   return std::sqrt(VectorLengthSquared(inVec));
 }
 
+template<class T, int d>
+  Vec<T,d> Floor(Vec<T,d> inVec){
+  for(int i = 0; i < d;i++){
+    inVec[i] = floor(inVec[i]);
+  }
+  return inVec;
+}
+
+
+
 typedef Vec<double,3> Vec3d;
 typedef Vec<double,2> vec2d;
+

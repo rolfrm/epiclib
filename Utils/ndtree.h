@@ -139,7 +139,7 @@ public:
     return get_child(index,create);
   }
   bool HasChildren(){
-    for(int i = 0; i < 8;i++){
+    for(int i = 0; i < (1 << D);i++){
       if(children[i] != NULL){
 	return true;
       }
