@@ -172,7 +172,9 @@ public:
   SelfType * children[1 << D];
   int idx;
 
-  virtual SelfType * CreateNode() = 0;
+  SelfType * CreateNode(){
+    return new SelfType();
+  }
   VNode(){
     parent = NULL;
     for(int i = 0; i < (1 << D);i++){
@@ -184,7 +186,7 @@ public:
   static IVec<D> index_to_ivec(int index){
     IVec<D> out;
     for(int i = 0; i < D;i++){
-      out.data[i] = (index & (1 << i)) >> i;
+      out.data[i] = (index >> i) & 1;
     }
     return out;
   }
@@ -200,7 +202,7 @@ public:
   bool outside_range(IVec<D> in){
     
     for(int i = 0; i < D;i++){
-      if(in.data[i] < 0 || in.data[i] > 1){
+      if(in.data[i] < 0 || in.data[i] >= 1){
 	return true;
       }
     }
@@ -208,28 +210,24 @@ public:
   }
 
   SelfType * relative_node(IVec<D> p, bool create){
-    p = p + index_to_ivec(idx);
     
-
+    if(p[0] == 0 && p[1] == 0){
+      return (SelfType *)this;
+    }
     SelfType * container = get_parent(create);
     if(container == NULL){
       return NULL;
     }
-
+    p = p + index_to_ivec(idx);
     if(outside_range(p)){
-      IVec<D> cp = p;
-      for(int i = 0; i < 3;i++){
-	cp[i] = cp[i] >> 1;
-      }
+      IVec<D> cp = p >> 1;
       	    
-      container = parent->relative_node(cp,create);
+      container = container->relative_node(cp,create);
       
       if(container == NULL){
 	return NULL;
       }
-      for(int i = 0; i < 3;i++){
-	p[i] = p[i] & 1;
-      }
+      p = p & 1;
 
     }
     
@@ -238,10 +236,13 @@ public:
       if( create == false){
 	return NULL;
       }
-      SelfType * new_child = container->CreateNode();
+      SelfType * new_child = CreateNode();
+      
       new_child->idx = index;
       new_child->parent = container;
       container->children[index] = new_child;
+      SelfType::PostProcessChild(new_child);
+      
     }
 
     SelfType * child = container->children[index];
@@ -254,18 +255,20 @@ public:
 	return NULL;
       }
       make_parent();
+      SelfType::PostProcessParent(parent,(SelfType *)this);
+    
     }
     return parent;
-    
   }
 
-  virtual SelfType * make_child(int nr){
-    SelfType * new_child = CreateNode();
-    new_child->idx = nr;
-    new_child->parent = (SelfType *)this;
-    children[nr] = new_child;
-    return new_child;
-  }
+  SelfType * make_child(int nr){
+      SelfType * new_child = new SelfType();
+      new_child->idx = nr;
+      new_child->parent = (SelfType *)this;
+      children[nr] = new_child;
+      SelfType::PostProcessChild(new_child);
+      return new_child;
+    }
 
   SelfType * get_child(int nr, bool create){
     if(children[nr] == NULL && create){

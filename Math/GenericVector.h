@@ -70,7 +70,7 @@ public:
   scalar_operator(*);
   scalar_operator(>>);
   scalar_operator(<<);
-
+  scalar_operator(&);
 };
 
 template<class T>
