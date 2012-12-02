@@ -440,7 +440,7 @@ public:
 	Vec<int,2> tpos = vec<int>(x,y)*chunkSize;
 	TextureNode * imgNode = renderTree->relative_node(vec(x,y),true);
 	Texture tex = imgNode->Data;
-	if(!tex.HasData() && nRenders++ < 20){
+	if(!tex.HasData() && nRenders++ < 10){
 	  bool ok = RenderQuadtreeToImage(origin,byteBuffer,chunkSize,chunkSize, tpos.As<int>());
 	  if(ok){
 	    tex = Texture(chunkSize,chunkSize,byteBuffer,Interpolation::Linear);
@@ -450,7 +450,7 @@ public:
 	    nRenders--;
 	  }
 	}
-	if(nRenders >= 20){
+	if(nRenders >= 10){
 	  Change = true;
 	}
 	Vec<double,2> objPos =vec((x - chunkScale[0])*chunkScreenSize[0] , (y - chunkScale[1])*chunkScreenSize[1]);
@@ -581,8 +581,6 @@ public:
     return returnedColor;
   }
     
-  
-
   Vec<double,2> ScreenToWorld(Vec<int,2> screenPos){
     return vec<double>(-screenPos[0], ScreenSize[1] - screenPos[1]) / Zoom + LocalP;
   }
@@ -616,6 +614,11 @@ public:
       qt = n;
     }
     return qt;
+  }
+
+  void SetWindowSize(Vec<int,2> size){
+    ScreenSize = size;
+    Change = true;
   }
 
   void UpdateState(){
@@ -661,9 +664,9 @@ public:
 	Zoom /= 2.0;
       }
     }
-  if(updateAgain){
-    UpdateState();
-  }
+    if(updateAgain){
+      UpdateState();
+    }
   }
   
     
@@ -673,7 +676,8 @@ class SimpleEvents:
   public EventListener<KeyEvent>,
   public EventListener<MouseClick>,
   public EventListener<MouseWheelEvent>,
-  public EventListener<mouse_position>
+  public EventListener<mouse_position>,
+  public EventListener<size>
 {
 public:
   
@@ -728,6 +732,10 @@ public:
     last = pos;
     return true;
   }
+  bool handle_event(size s){
+    renderer->SetWindowSize(vec(s.x,s.y));
+  }
+
 };
 
 void writeQuadTreeState(QuadTree * qt, ostream & str){
@@ -791,6 +799,7 @@ int test_main(){
   mouse_click_handler.register_listener(&sev);
   mouse_move_spawner.register_listener(&sev);
   mouse_wheel_event_spawner.register_listener(&sev);
+  window_resize_event.register_listener(&sev);
   qtr.Move(vec(400.0,-25.0));
   int x = 0;
   while(sev.Running){

@@ -43,6 +43,7 @@ void GLFWCALL charcallback( int character, int action ){
 }
 bool block_window_sizing = true;
 void GLFWCALL window_size_callback(int width,int height){
+  glViewport(0,0,width,height);
   window_resize_event.spawn_event(size({width,height}));
 }
 mouse_position global_mpos;

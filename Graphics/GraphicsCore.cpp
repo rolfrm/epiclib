@@ -46,6 +46,7 @@ void initOpenGL(GLuint n_width,GLuint n_height,GLfloat n_framerate){
 	glEnable(GL_TEXTURE_2D);
 	setFramerate(n_framerate);
 	last_time=glfwGetTime();
+	
 }
 
 void terminateOpenGL(){
@@ -138,7 +139,9 @@ void GenerateObject2World(GLfloat * mat,vec3 position,vec3 angle,vec3 scale){
 	mat[2]=temp[2],mat[6]=temp[6],mat[10]=temp[10],mat[14]=position.z;
 	mat[3]=0,mat[7]=0,mat[11]=0,mat[15]=1;
 
-
 }
 
+void SetGLViewport(int width, int height){
+  
+}
 
