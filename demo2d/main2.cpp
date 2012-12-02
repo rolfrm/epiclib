@@ -15,8 +15,43 @@
 #include "../Utils/semi_virtual_ndtree.h"
 using namespace std;
 
+
+using Color = Vec<unsigned char,4>;
+
+Color color(unsigned char r, unsigned char g, unsigned char b, unsigned char a){
+  return vec( r ,g, b,  a);
+}
+
+Color color(Vec<float,4> f){
+  return (f * 255.0f).As<unsigned char>();
+}
+
+Color col(Vec<unsigned char,4> colors){
+  return color(colors[0],colors[1],colors[2],colors[3]);
+} 
+
+/*Color color(unsigned char r, unsigned char g, unsigned char b, unsigned char a){
+  return vec( ((float) r) / 255 ,((float) g) / 255, ((float) b) / 255, ((float) a) / 255);
+}
+
+Color color(Vec<float,4> f){
+  return f;
+}
+
+Color col(Vec<unsigned char,4> colors){
+  return color(colors[0],colors[1],colors[2],colors[3]);
+  } */
+
+unsigned int colorVecToUint(Color color){
+  unsigned int colori = 0;
+  for(int i = 0; i < 4;i++){
+    colori |= ((unsigned int)(color[i]) << (i*8));
+  }
+  return colori;
+}
+
 class ColorTree: 
-  public VNode<Vec<float,4>,2,ColorTree> {
+  public VNode<Color,2,ColorTree> {
 public:
   
   static void PostProcessChild(ColorTree * child){
@@ -32,6 +67,9 @@ public:
 
 //using QuadTree = Node<Vec<float,4> ,2>;
 using QuadTree = ColorTree;
+
+using TextureNode = Node<Texture,2>;
+
 Texture CreateTextureFromQuadTree(QuadTree * qt, int lod){
   int size = 1 << lod;
   int * data = new int[size*size];
@@ -115,11 +153,11 @@ void genQuadTreeRec(QuadTree * qt, int lv){
   }
   switch(rand()%3){
   case 0:
-    qt->Data = vec(0.5f,0.5f,0.0f,1.0f);break;
+    qt->Data = color(vec(0.5f,0.5f,0.0f,1.0f));break;
   case 1:
-    qt->Data = vec(0.5f,1.0f,0.0f,1.0f);break;
+    qt->Data = color(vec(0.5f,1.0f,0.0f,1.0f));break;
   case 2:
-    qt->Data = vec(0.5f,0.2f,1.0f,1.0f);break;
+    qt->Data = color(vec(0.5f,0.2f,1.0f,1.0f));break;
   }
  if(lv == 0){
     return;
@@ -165,13 +203,7 @@ public:
 
 };
 
-unsigned int colorVecToUint(Vec<float,4> color){
-  unsigned int colori = 0;
-  for(int i = 0; i < 4;i++){
-    colori |= ((unsigned int)(color[i]*255.0f) << (i*8));
-  }
-  return colori;
-}
+
 #define QuadTreeScale 9
 #define QuadTreeSize (1 << QuadTreeScale)
 bool RenderQuadToImage(QuadTree * qt, unsigned int * bytes, int width, int height, Vec<int,2> p, int s){
@@ -288,20 +320,74 @@ void recGen2(QuadTree * qt,int lvs){
   if(lvs == 0){
     return;
   }
-  qt->get_child(0,true)->Data = vec(0.0f,0.3f,0.0f,1.0f);
-  qt->get_child(1,true)->Data = vec(0.0f,0.5f,0.0f,1.0f);
-  qt->get_child(2,true)->Data = vec(0.0f,0.6f,0.0f,1.0f);
+  qt->get_child(0,true)->Data = color(vec(0.0f,0.3f,0.0f,1.0f));
+  qt->get_child(1,true)->Data = color(vec(0.0f,0.5f,0.0f,1.0f));
+  qt->get_child(2,true)->Data = color(vec(0.0f,0.6f,0.0f,1.0f));
   recGen2(qt->get_child(3,true),lvs-1);
 }
 
 QuadTree * genQuadTree(){
   QuadTree * qt = new QuadTree();
   recGen2(qt,10);
-  qt->relative_node(vec(1,1),true)->Data = vec(0.0f,0.0f,0.5f,1.0f);
+  qt->relative_node(vec(1,1),true)->Data = color(vec(0.0f,0.0f,0.5f,1.0f));
   //return qt;
   return qt->get_child(3,true)->get_child(3,true)->get_child(0,true);
 }
 #define MAX(x,y) (x > y?x:y)
+
+void Serialize(QuadTree * qt, ostream & ostr){
+  unsigned int color = colorVecToUint(qt->Data);
+  unsigned char children = 0;
+  for(int i = 0; i < 4; i++){
+    QuadTree * child = qt->children[i];
+    if(child == NULL){
+      children |= 1 << i;
+      continue;
+    }
+    if(child->HasChildren()){
+      children |= 1 << (i+4);
+    }
+  }
+  ostr.write((char *) &color,sizeof(unsigned int));
+  ostr.write((char *) &children,sizeof(unsigned char));
+  for(int i = 0; i < 4;i++){
+    QuadTree * child = qt->children[i];
+    if(child != NULL){
+      if(!child->HasChildren()){
+	ostr.write((char *) &child->Data,4);
+      }else{
+	Serialize(child,ostr);
+      }
+    }
+  }
+}
+
+QuadTree * Deserialize(istream & istr){
+  QuadTree * newQuad = new QuadTree();
+  unsigned char children;
+  istr.read((char *) &(newQuad->Data),sizeof(Color));
+  istr.read((char *) &children,1);
+  
+  for(int i = 0; i < 4;i++){
+    bool isNull = (children & (1 << i)) > 0;
+    bool hasChildren = (children & (1 << (i+4))) > 0; 
+    if(isNull){
+      continue;
+    }
+    QuadTree * child;
+    if(hasChildren){
+      child = Deserialize(istr);
+    }else{
+      child= new QuadTree();
+      istr.read((char *) &(child->Data),sizeof(Color));
+    }
+    child->idx = i;
+    newQuad->children[i] = child;
+    child->parent = newQuad;
+  }
+  
+  return newQuad;
+}
 
 class QuadtreeRenderer{
 public:
@@ -313,10 +399,11 @@ public:
   int chunkSize;
   int chunkScale;
   Vec<int,2> ScreenSize;
-  Node<Texture,2>* renderTree;
+  TextureNode* renderTree;
   unsigned int * byteBuffer;
   Texture nullTex;
   bool Change;
+  int renderit;
   QuadtreeRenderer(QuadTree * _origin,VBO squareBuffer, Texture2DShader tex2DShader, Vec<int,2> screenSize):
     SquareBuffer(squareBuffer), 
     texShader(tex2DShader)
@@ -329,13 +416,15 @@ public:
     LocalP = vec(0.0,0.0);
     chunkScale = QuadTreeScale;
     chunkSize = 1 << chunkScale;
-    renderTree = new Node<Texture,2>();
+    renderTree = new TextureNode();
     byteBuffer = new unsigned int[chunkSize*chunkSize];
-    unsigned int def[]{0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF};
+    unsigned int def[]{0x00000000,0x0,0x0,0x0};
     nullTex = Texture(2,2,def);
+    renderit = 0;
   }
-
+  map<TextureNode *, int> texturesInUse;
   void Render(){
+    renderit += 1;
     Change = false;
     Vec<double,2> chunkScreenSize = vec<double>(chunkSize,chunkSize) / ScreenSize.As<double>()*Zoom;
     int nRenders = 0;
@@ -349,9 +438,9 @@ public:
     for(int x = start[0]; x <= end[0];x++){
       for(int y = start[1];y <= end[1];y++){
 	Vec<int,2> tpos = vec<int>(x,y)*chunkSize;
-	Node<Texture,2> * imgNode = renderTree->relative_node(vec(x,y),true);
+	TextureNode * imgNode = renderTree->relative_node(vec(x,y),true);
 	Texture tex = imgNode->Data;
-	if(!tex.HasData() && nRenders++ < 1){
+	if(!tex.HasData() && nRenders++ < 20){
 	  bool ok = RenderQuadtreeToImage(origin,byteBuffer,chunkSize,chunkSize, tpos.As<int>());
 	  if(ok){
 	    tex = Texture(chunkSize,chunkSize,byteBuffer,Interpolation::Linear);
@@ -361,24 +450,46 @@ public:
 	    nRenders--;
 	  }
 	}
-	if(nRenders >= 1){
+	if(nRenders >= 20){
 	  Change = true;
 	}
 	Vec<double,2> objPos =vec((x - chunkScale[0])*chunkScreenSize[0] , (y - chunkScale[1])*chunkScreenSize[1]);
-	
+	bool uvstateChanged = false;
 	if(!tex.HasData()){
 	  //try to fetch texture from different layer options: go down and render 2x2 or go up and render a chunk(prefered)
-	  nullTex.Bind(0);
+	  if(imgNode->parent->Data.HasData()){
+	    int idx = imgNode->idx;
+	    tex = imgNode->parent->Data;
+	    texturesInUse[imgNode->parent] = renderit;
+	    texShader.SetUVState(vec<double>(idx & 1, idx >> 1) / 2.0,vec(0.5,0.5));
+	    uvstateChanged = true;
+	  }else{
+	    nullTex.Bind(0);
+	  }
 	}else{
+	  texturesInUse[imgNode] = renderit;
 	  tex.Bind(0);
 	}
 	texShader.SetPos(objPos[0], objPos[1]);
-	VBO::DrawBuffers(DrawMethod::Quads,4);
+   	VBO::DrawBuffers(DrawMethod::Quads,4);
+	texShader.SetUVState(vec(0.0,0.0),vec(1.0,1.0));
       }
     }
+
+    list<TextureNode *> toRemove;
+    for(auto it = texturesInUse.begin();it != texturesInUse.end();it++){
+      if(it->second < renderit){
+	toRemove.push_back(it->first);
+      }
+    }
+    for(TextureNode * node : toRemove){
+      node->Data.Release();
+      texturesInUse.erase(node);
+    }
+
   }
 
-  void _repaint_down(Node<Texture,2> * cell){
+  void _repaint_down(TextureNode * cell){
     cell->Data.Release();
     for(int i = 0; i < 4;i++){
       if(cell->children[i] != NULL){
@@ -387,8 +498,8 @@ public:
     }
   }
 
-  void Repaint(Node<Texture,2> * cell){
-    Node<Texture,2> * cell2 = cell->parent;
+  void Repaint(TextureNode * cell){
+    TextureNode * cell2 = cell->parent;
     while(cell2 != NULL){
       cell2->Data.Release();
       cell2 = cell2->parent;
@@ -396,19 +507,29 @@ public:
     _repaint_down(cell);
   }
 
-  void PaintDotScreen(Vec<int,2> point,Vec<float,4> color, int pxsize){
+  std::map<QuadTree * ,bool> paintedNodes;
+
+  void finishedPainting(){
+    for(auto it = paintedNodes.begin();it != paintedNodes.end();it++){
+      optimizeTree(it->first);
+    }
+    paintedNodes = map<QuadTree* , bool>();
+  }
+
+  void PaintDotScreen(Vec<int,2> point,Color color, int pxsize){
     Change = true;
     Vec<double,2> worldPos = ScreenToWorld(point); //* Zoom;
     QuadTree * end = TraceDown(worldPos);
     //end->Data = color;
     int cellsize = QuadTreeSize;
     Vec<double,2> rendercell = Floor(worldPos / chunkSize);
-    Node<Texture,2> * rcell = renderTree->relative_node(rendercell.As<int>(),false);
+    TextureNode * rcell = renderTree->relative_node(rendercell.As<int>(),false);
     Repaint(rcell);
     
     Vec<double,2> cell = Floor((worldPos / QuadTreeSize));
     Vec<double,2> rest = (worldPos/ QuadTreeSize - cell)*2.0;
     QuadTree * node =  origin->relative_node(cell.As<int>(),true);
+    QuadTree * firstNode = node;
     while(cellsize > 1){
       Vec<int,2> newcell = rest.As<int>();
       rest = (rest - newcell.As<double>())*2.0;
@@ -416,6 +537,8 @@ public:
       QuadTree * newnode = node->get_child(newcell,true);
       node = newnode;
     }
+    pxsize /=Zoom;
+    paintedNodes[firstNode] = true;
     for(int i = -pxsize;i < pxsize+1;i++){
       for(int j = -pxsize;j < pxsize+1;j++){
 	node->relative_node(vec(i,j),true)->Data = color;
@@ -430,6 +553,35 @@ public:
     LocalP =LocalP + finalChange;
     UpdateState();
   }
+
+  Color optimizeTree(QuadTree * cell){
+    Color returnedColor;
+    bool hasChildren = false;
+    bool hasNull = false;
+    for(int i = 0; i < 4;i++){
+      QuadTree * child = cell->children[i];
+      if(child == NULL){
+	hasNull = true;
+	returnedColor = returnedColor + cell->Data / 4;
+      }else if(!child->HasChildren()){
+	if(cell->Data == child->Data){
+	  delete child;
+	  cell->children[i] = NULL;
+	  returnedColor = returnedColor + cell->Data / 4;
+	}else{
+	  returnedColor = returnedColor + child->Data / 4;
+	}
+      }else{
+	returnedColor = returnedColor + optimizeTree(child) / 4;
+      }
+    }
+    if(!hasNull){
+      cell->Data = returnedColor;
+    }
+    return returnedColor;
+  }
+    
+  
 
   Vec<double,2> ScreenToWorld(Vec<int,2> screenPos){
     return vec<double>(-screenPos[0], ScreenSize[1] - screenPos[1]) / Zoom + LocalP;
@@ -452,7 +604,6 @@ public:
       position = position / 2.0 + vec(qt->idx & 1, qt->idx >> 1).As<double>() * s;
       qt = qt->get_parent(true);
       s *= 2;
-      //print(position);
     }
     print(position);
     while(s > 1){
@@ -531,21 +682,28 @@ public:
   bool first;
   Vec<int,2> last;
   QuadtreeRenderer * renderer;
+
+  bool Running;
+
   SimpleEvents(QuadtreeRenderer * qtRenderer){
     renderer = qtRenderer;
     leftDown = false;
     rightDown = false;
-    
+    Running = true;
   }
   bool handle_event(KeyEvent kev){
-
+    if(kev.key == ESC){
+      Running = false;
+    }
   }
   bool handle_event(MouseClick mclick){
     if(mclick.button == 0){
       leftDown = mclick.pressed;
       first = true;
       if(mclick.pressed){
-	renderer->PaintDotScreen(last,vec(1.0f,1.0f,0.0f,1.0f),2);
+	renderer->PaintDotScreen(last,color(vec(0.0f,0.0f,0.0f,1.0f)),2);
+      }else{
+	renderer->finishedPainting();
       }
     }
     if(mclick.button == 1){
@@ -565,20 +723,63 @@ public:
       renderer->Move(dp.As<double>());
     }
     if(leftDown){
-      renderer->PaintDotScreen(last,vec(0.0f,0.0f,0.0f,1.0f),2);
+      renderer->PaintDotScreen(last,color(vec(0.0f,0.0f,0.0f,1.0f)),2);
     }
     last = pos;
     return true;
   }
-  
 };
 
-#define SCREENWIDTH 700
-#define SCREENHEIGHT 700
+void writeQuadTreeState(QuadTree * qt, ostream & str){
+  std::list<int> stepsUp;
+  while(qt->parent != NULL){
+    stepsUp.push_back(qt->idx);
+    qt = qt->parent;
+  }
+  stepsUp.reverse();
+  int size = stepsUp.size();
+  str.write((char *) &size,sizeof(int));
+  
+  for(auto it = stepsUp.begin();it != stepsUp.end();it++){
+    int step = *it;
+    str.write((char *) &step,sizeof(int));
+  
+  }
+  Serialize(qt,str);
+}
+
+QuadTree * loadQuadtreeState(istream & str){
+  int size;
+  str.read(( char *) &size, sizeof(int));
+  std::list<int> stepsDown;
+  for(int i = 0; i < size;i++){
+    int in;
+    str.read((char *) &in, sizeof(int));
+    stepsDown.push_back(in);
+  }
+  QuadTree * tree = Deserialize(str);
+  for(auto it = stepsDown.begin(); it != stepsDown.end();it++){
+    std::cout << "Going down.. \n";
+    tree = tree->children[*it];
+  }
+  return tree;
+}
+
+#define SCREENWIDTH 1024
+#define SCREENHEIGHT 1024
+#include<fstream>
 int test_main(){
   Texture2DShader texShader;
+  fstream fstr;
+  fstr.open("test.save", ios::in);
+  QuadTree * qt;
+  if(!fstr.good()){
+    qt = genQuadTree();
+  }else{
+    qt = loadQuadtreeState(fstr);
+  }
+  fstr.close();
   
-  QuadTree * qt = genQuadTree();
   Context context;
   float squaredata[] = {0,0,
 			1.0,0.0,
@@ -592,7 +793,7 @@ int test_main(){
   mouse_wheel_event_spawner.register_listener(&sev);
   qtr.Move(vec(400.0,-25.0));
   int x = 0;
-  while(true){
+  while(sev.Running){
     StopWatch swatch;
     swatch.Reset();
     swatch.Start();
@@ -605,6 +806,9 @@ int test_main(){
     Sleep(0.01);
     
   }
+  fstr.open("test.save", ios::out | ios::trunc);
+  writeQuadTreeState(qtr.origin,fstr);
+  fstr.close();
   return 0;
 }
 int main(){

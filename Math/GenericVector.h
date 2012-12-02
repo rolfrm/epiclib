@@ -49,6 +49,15 @@ public:
     return out;\
   }
 
+  bool operator==(Vec other){
+    for(int i = 0; i < N;i++){
+      if(other[i] != data[i]){
+	return false;
+      }
+    }
+    return true;
+  }
+
   static T dot(Vec v1, Vec v2){
     T out = 0;
     for(int i = 0; i < N;i++){
@@ -56,6 +65,8 @@ public:
     }
     return out;
   }
+
+
 
   other_vector_operator(+);
   other_vector_operator(-);

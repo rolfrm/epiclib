@@ -21,7 +21,11 @@ class Node{
   void make_parent(){
     
     parent = CreateNode();
-    parent->idx = (idx + 1) % (1 << D);
+    int nidx = 0;
+    if(idx == 0){
+      nidx = (1<<D)-1;
+    }
+    parent->idx = nidx;
     parent->children[idx] = this;
     
   }
@@ -283,6 +287,17 @@ public:
     //std::cout << index << "\n";
     return get_child(index,create);
   }
+  
+  int NumberOfChildren(){
+    int n = 0;
+    for(int i = 0; i < (1 << D);i++){
+      if(children[i] != NULL){
+	n +=1;
+      }
+    }
+    return n;
+  }
+
   bool HasChildren(){
     for(int i = 0; i < (1 << D);i++){
       if(children[i] != NULL){

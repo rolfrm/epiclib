@@ -71,7 +71,7 @@ typedef struct size{
 #define DELETE 297
 #define SHIFT 287
 #define TAB 293
-
+#define ESC 257
 extern EventSpawner<KeyEvent> key_event_handler;
 extern EventSpawner<MouseClick> mouse_click_handler;
 extern EventSpawner<mouse_position> mouse_move_spawner;

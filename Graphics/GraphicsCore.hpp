@@ -1,3 +1,4 @@
+
 /*
  * ShadeCore.hpp
  *
@@ -24,7 +25,7 @@
 
 void initOpenGL(unsigned int n_width,unsigned int n_height,float n_framerate=60.0f);
 void terminateOpenGL();
-void ClearBuffer(Color color);
+void ClearBuffer(Colorf color);
 
 void setFramerate(float n_framerate);
 void SwapBuffers();
