@@ -17,9 +17,7 @@ using IVec = Vec<int,N>;
 
 template<class T, int D>
 class Node{
-  
   void make_parent(){
-    
     parent = CreateNode();
     int nidx = 0;
     if(idx == 0){
@@ -305,6 +303,18 @@ public:
       }
     }
     return false;
+  }
+
+  void DeleteChildren(){
+
+    for(int i = 0; i < (1 << D); i++){
+      if(children[i] != NULL){
+	children[i]->DeleteChildren();
+	delete children[i];
+	children[i] = NULL;
+      }
+    }
+
   }
 
 };

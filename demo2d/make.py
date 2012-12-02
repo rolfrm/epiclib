@@ -5,4 +5,5 @@ import time
 
 
 
-pyc.Compile("start","","obj",["main2.cpp"],["epiclib"],3,0,pyc.CPPOX,["../"],["../"])
+pyc.Compile("start","","obj",["main2.cpp","fltkgui.cpp"],["epiclib","fltk"],3,0,pyc.CPPOX,["../"],["../"])
+

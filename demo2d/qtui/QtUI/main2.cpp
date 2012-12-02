@@ -516,29 +516,6 @@ public:
     paintedNodes = map<QuadTree* , bool>();
   }
 
-  Color sampleColor(Vec<int,2> point){
-    Vec<double,2> worldPos = ScreenToWorld(point); //* Zoom;
-    QuadTree * end = TraceDown(worldPos);
-    //end->Data = color;
-    int cellsize = QuadTreeSize;
-    Vec<double,2> rendercell = Floor(worldPos / chunkSize);
-    TextureNode * rcell = renderTree->relative_node(rendercell.As<int>(),false);
-    Repaint(rcell);
-    
-    Vec<double,2> cell = Floor(worldPos / QuadTreeSize);
-    Vec<double,2> rest = (worldPos/ QuadTreeSize - cell)*2.0;
-    QuadTree * node =  origin->relative_node(cell.As<int>(),true);
-    QuadTree * firstNode = node;
-    while(cellsize > 1){
-      Vec<int,2> newcell = rest.As<int>();
-      rest = (rest - newcell.As<double>())*2.0;
-      cellsize >>= 1;
-      QuadTree * newnode = node->get_child(newcell,true);
-      node = newnode;
-    }
-    return node->Data;
-  }
-
   void PaintDotScreen(Vec<int,2> point,Color color, int pxsize){
     Change = true;
     Vec<double,2> worldPos = ScreenToWorld(point); //* Zoom;
@@ -549,7 +526,7 @@ public:
     TextureNode * rcell = renderTree->relative_node(rendercell.As<int>(),false);
     Repaint(rcell);
     
-    Vec<double,2> cell = Floor(worldPos / QuadTreeSize);
+    Vec<double,2> cell = Floor((worldPos / QuadTreeSize));
     Vec<double,2> rest = (worldPos/ QuadTreeSize - cell)*2.0;
     QuadTree * node =  origin->relative_node(cell.As<int>(),true);
     QuadTree * firstNode = node;
@@ -562,12 +539,9 @@ public:
     }
     pxsize /=Zoom;
     paintedNodes[firstNode] = true;
-    for(int i = -pxsize/2;i < pxsize/2+1;i++){
-      for(int j = -pxsize/2;j < pxsize/2+1;j++){
-	QuadTree * qn = node->relative_node(vec(i,j),true);
-	qn->DeleteChildren();
-	qn->Data = color;
-	
+    for(int i = -pxsize;i < pxsize+1;i++){
+      for(int j = -pxsize;j < pxsize+1;j++){
+	node->relative_node(vec(i,j),true)->Data = color;
       }
     }
   }
@@ -697,10 +671,7 @@ public:
   
     
 };
-Vec<float,4> getCurrentColor();
-void setCurrentColor(Vec<unsigned char,4> color);
-int getCurrentBrushSize();
-int getCurrentSize();
+
 class SimpleEvents:
   public EventListener<KeyEvent>,
   public EventListener<MouseClick>,
@@ -712,7 +683,6 @@ public:
   
   bool leftDown;
   bool rightDown;
-  bool ctrlDown;
   bool first;
   Vec<int,2> last;
   QuadtreeRenderer * renderer;
@@ -724,14 +694,10 @@ public:
     leftDown = false;
     rightDown = false;
     Running = true;
-    ctrlDown = false;
   }
   bool handle_event(KeyEvent kev){
-    if(kev.key == ESC || kev.key == 'Q'){
+    if(kev.key == ESC){
       Running = false;
-    }
-    if(kev.key == CTRL){
-      ctrlDown = kev.pressed;
     }
   }
   bool handle_event(MouseClick mclick){
@@ -739,13 +705,7 @@ public:
       leftDown = mclick.pressed;
       first = true;
       if(mclick.pressed){
-	if(!ctrlDown){
-
-	renderer->PaintDotScreen(last,color(getCurrentColor()),getCurrentSize());
-	}else{
-	  Color col = renderer->sampleColor(last);
-	  setCurrentColor(col);
-	}
+	renderer->PaintDotScreen(last,color(vec(0.0f,0.0f,0.0f,1.0f)),2);
       }else{
 	renderer->finishedPainting();
       }
@@ -762,20 +722,13 @@ public:
   bool handle_event(mouse_position mpos){
     Vec<int,2> pos = vec(-mpos.x,mpos.y);
     Vec<int,2> dp = pos - last;
-    if(leftDown){  
-    if(!ctrlDown){
-
-      renderer->PaintDotScreen(last,color(getCurrentColor()),getCurrentSize());
-    }else{
-      Color col = renderer->sampleColor(last);
-      setCurrentColor(col);
-    }
-    }
-
+      
     if(rightDown){
       renderer->Move(dp.As<double>());
     }
-    
+    if(leftDown){
+      renderer->PaintDotScreen(last,color(vec(0.0f,0.0f,0.0f,1.0f)),2);
+    }
     last = pos;
     return true;
   }
@@ -824,6 +777,8 @@ QuadTree * loadQuadtreeState(istream & str){
 #define SCREENHEIGHT 1024
 #include<fstream>
 int test_main(){
+  initOpenGL(SCREENWIDTH,SCREENHEIGHT);
+  init_events();
   Texture2DShader texShader;
   fstream fstr;
   fstr.open("test.save", ios::in);
@@ -865,15 +820,6 @@ int test_main(){
   fstr.open("test.save", ios::out | ios::trunc);
   writeQuadTreeState(qtr.origin,fstr);
   fstr.close();
-  std::cout << "Ending\n";
   return 0;
 }
-#include <thread>
-void uimain();
-int main(){
-  std::thread t(uimain);
-  initOpenGL(SCREENWIDTH,SCREENHEIGHT);
-  init_events();
 
-  return test_main();
-}
