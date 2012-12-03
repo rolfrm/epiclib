@@ -4,6 +4,7 @@
 #include <FL/Fl_Color_Chooser.H>
 #include <FL/Fl_Slider.H>
 #include <FL/Fl_Text_Display.H>
+#include <FL/Fl_Check_Button.H>
 #include "../Math/GenericVector.h"
 
 
@@ -34,6 +35,11 @@ void setCurrentColor(Vec<unsigned char,4> color){
   Fl::unlock();
 }
 
+bool IsGridAligned(){
+
+}
+
+
 void slider_callback(Fl_Widget * w, void * data){
   std::stringstream str;
   double v = fs->value();
@@ -43,22 +49,41 @@ void slider_callback(Fl_Widget * w, void * data){
   td->buffer()->text(str.str().c_str());
 }
 
+Fl_Slider * gridRes_ptr = NULL;
+Fl_Text_Display * gridResText_ptr = NULL;
+void gridRes_callback(Fl_Widget * w, void * data){
+  std::stringstream str;
+  double v = gridRes_ptr->value();
+  v = pow(2.0,v*10);
+  size = v;
+  str << (int)v;
+  gridResText_ptr->buffer()->text(str.str().c_str());
+}
+
+
 //-------------------------------------------- 
 int uimain() {
 
-    Fl_Window win( 300,200,"Testing" );
+    Fl_Window win( 400,400,"Testing" );
     winptr = &win;
     win.begin();
     Fl_Color_Chooser chooser(0,0,150,150,"chooser");
-    Fl_Slider slider(0,160,100,10,"slider");
+    Fl_Slider slider(0,160,100,10,"brush size");
+    Fl_Slider gridRes(0,240,100,20,"grid res");
     fs = &slider;
-    Fl_Text_Display text(150,0,100,50);
+    Fl_Text_Display text(160,0,100,50);
+    Fl_Text_Display gridResText(160,100,100,50);
+    Fl_Check_Button check(160,80,10,10, "Grid aligned?");
+    
+    gridRes_ptr = &gridRes;
+    gridResText_ptr = &gridResText;
+    gridResText_ptr->buffer(new Fl_Text_Buffer());
     td = &text;
     td->buffer(new Fl_Text_Buffer());
-    std::cout << td->buffer() << "\n";
     
     slider.type(FL_HORIZONTAL);
     slider.callback(slider_callback);
+    gridRes.callback(gridRes_callback);
     win.end();
     c = &chooser;
     win.show();

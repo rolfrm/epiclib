@@ -50,6 +50,12 @@ unsigned int colorVecToUint(Color color){
   return colori;
 }
 
+Color UintToColorVec(unsigned int coli){
+  Color * c=(Color *) &coli;
+  return *c;
+}
+
+
 class ColorTree: 
   public VNode<Color,2,ColorTree> {
 public:
@@ -204,7 +210,7 @@ public:
 };
 
 
-#define QuadTreeScale 9
+#define QuadTreeScale 8
 #define QuadTreeSize (1 << QuadTreeScale)
 bool RenderQuadToImage(QuadTree * qt, unsigned int * bytes, int width, int height, Vec<int,2> p, int s){
   if(s == 0){
@@ -389,6 +395,28 @@ QuadTree * Deserialize(istream & istr){
   return newQuad;
 }
 
+unsigned int median4(unsigned int a, unsigned int b, unsigned int c, unsigned int d){
+  unsigned int low1 = b, low2 = a,high1 = d,high2 = c;
+  if( a < b){
+    low1 = a;
+    high1 = b;
+  }
+  if( c < d){
+    low2 = c;
+    high2 = d;
+  }
+
+  if(low1 > low2){
+    low2 = low1;
+  }
+  if(high1 > high2){
+    high2 = high1;
+  }
+  return low2;
+
+}
+
+
 class QuadtreeRenderer{
 public:
   QuadTree * origin;
@@ -440,17 +468,17 @@ public:
 	Vec<int,2> tpos = vec<int>(x,y)*chunkSize;
 	TextureNode * imgNode = renderTree->relative_node(vec(x,y),true);
 	Texture tex = imgNode->Data;
-	if(!tex.HasData() && nRenders++ < 10){
+	if(!tex.HasData() && nRenders++ < 20){
 	  bool ok = RenderQuadtreeToImage(origin,byteBuffer,chunkSize,chunkSize, tpos.As<int>());
 	  if(ok){
-	    tex = Texture(chunkSize,chunkSize,byteBuffer,Interpolation::Linear);
+	    tex = Texture(chunkSize,chunkSize,byteBuffer,Interpolation::Linear,TextureWrap::ClampToEdge);
 	    fill(byteBuffer,byteBuffer + chunkSize*chunkSize,0);
 	    imgNode->Data = tex;
 	  }else{
 	    nRenders--;
 	  }
 	}
-	if(nRenders >= 10){
+	if(nRenders >= 20){
 	  Change = true;
 	}
 	Vec<double,2> objPos =vec((x - chunkScale[0])*chunkScreenSize[0] , (y - chunkScale[1])*chunkScreenSize[1]);
@@ -553,7 +581,9 @@ public:
     Vec<double,2> rest = (worldPos/ QuadTreeSize - cell)*2.0;
     QuadTree * node =  origin->relative_node(cell.As<int>(),true);
     QuadTree * firstNode = node;
+    int downit = 0;
     while(cellsize > 1){
+      downit +=1;
       Vec<int,2> newcell = rest.As<int>();
       rest = (rest - newcell.As<double>())*2.0;
       cellsize >>= 1;
@@ -572,39 +602,45 @@ public:
     }
   }
   void ZoomIn(double Change, Vec<double,2> Around){
-    auto d = (Around - LocalP);
+    Vec<double,2> d = (Around - LocalP)/Change;
     Vec<double,2> finalChange = d * (Change - 1);
-    print(finalChange);
     Zoom *= Change;
     LocalP =LocalP + finalChange;
     UpdateState();
   }
 
   Color optimizeTree(QuadTree * cell){
-    Color returnedColor;
+    unsigned int returnedColor[4];
     bool hasChildren = false;
     bool hasNull = false;
     for(int i = 0; i < 4;i++){
       QuadTree * child = cell->children[i];
       if(child == NULL){
 	hasNull = true;
-	returnedColor = returnedColor + cell->Data / 4;
-      }else if(!child->HasChildren()){
+	returnedColor[i] = colorVecToUint(cell->Data);
+	continue;
+      }
+      if(child->HasChildren()){
+	optimizeTree(child);
+      }
+      returnedColor[i] = colorVecToUint(child->Data);
+      if(!child->HasChildren()){
 	if(cell->Data == child->Data){
 	  delete child;
 	  cell->children[i] = NULL;
-	  returnedColor = returnedColor + cell->Data / 4;
-	}else{
-	  returnedColor = returnedColor + child->Data / 4;
 	}
-      }else{
-	returnedColor = returnedColor + optimizeTree(child) / 4;
+      }
+
+      if(child == NULL){
+	hasNull = true;
       }
     }
+    Color finalColor = UintToColorVec(median4(returnedColor[0],returnedColor[1],returnedColor[2],returnedColor[3]));
+    
     if(!hasNull){
-      cell->Data = returnedColor;
+      cell->Data = finalColor;
     }
-    return returnedColor;
+    return finalColor;
   }
     
   Vec<double,2> ScreenToWorld(Vec<int,2> screenPos){
@@ -667,19 +703,14 @@ public:
     int rIdx = renderTree->idx;
     Vec<int,2> rcell = vec(rIdx &1, rIdx>>1);
     Vec<int,2> cell = vec(idx & 1, idx >> 1);
-    std::cout << Zoom << " " << idx << " " <<rIdx <<"\n";
-    print(cell);
     if(Zoom < 0.5){
-      //if(origin->parent != NULL){
-	updateAgain = true;
-	origin = origin->get_parent(true);
+      updateAgain = true;
+      origin = origin->get_parent(true);
 	
-	renderTree = renderTree->get_parent(true)->relative_node(cell-rcell,true);
-	LocalP = LocalP / 2.0 + (cell * QuadTreeSize).As<double>()/2.0;
-	Zoom *= 2.0;
-	//}
+      renderTree = renderTree->get_parent(true)->relative_node(cell-rcell,true);
+      LocalP = LocalP / 2.0 + (cell * QuadTreeSize).As<double>()/2.0;
+      Zoom *= 2.0;
     }else if(Zoom > 1.0){
-    
       QuadTree * newOrigin = origin->get_child(cell,true);
       if(newOrigin != NULL){
 	updateAgain = true;
