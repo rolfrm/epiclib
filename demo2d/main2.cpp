@@ -105,6 +105,11 @@ public:
     shader.setUniform("size",w,h);
   }
 
+  void SetColor(Color col){
+    shader.UseProgram();
+    shader.setUniform("color",col.As<float>() / 255.0f);
+  }
+
   void SetTexture(unsigned int channel){
     shader.UseProgram();
     shader.setUniform("tex",(int)channel);
@@ -609,7 +614,7 @@ public:
     UpdateState();
   }
 
-  Color optimizeTree(QuadTree * cell){
+  void optimizeTree(QuadTree * cell){
     unsigned int returnedColor[4];
     bool hasChildren = false;
     bool hasNull = false;
@@ -635,12 +640,8 @@ public:
 	hasNull = true;
       }
     }
-    Color finalColor = UintToColorVec(median4(returnedColor[0],returnedColor[1],returnedColor[2],returnedColor[3]));
+    //Color finalColor = UintToColorVec(median4(returnedColor[0],returnedColor[1],returnedColor[2],returnedColor[3]));
     
-    if(!hasNull){
-      cell->Data = finalColor;
-    }
-    return finalColor;
   }
     
   Vec<double,2> ScreenToWorld(Vec<int,2> screenPos){
@@ -746,18 +747,29 @@ public:
   bool ctrlDown;
   bool first;
   Vec<int,2> last;
+  vec<int,2> BrushPosition;
   QuadtreeRenderer * renderer;
 
   bool Running;
+  Texture2DShader texShader;
+  VBO SquareBuffer;
+  Texture nullTex;
 
-  SimpleEvents(QuadtreeRenderer * qtRenderer){
+  SimpleEvents(QuadtreeRenderer * qtRenderer,Texture2DShader shader, VBO squareBuffer):
+    texShader(shader),
+    SquareBuffer(squareBuffer)
+  {
+    unsigned int nulltex[] = {0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF};
+    nullTex = Texture(2,2,nulltex,Interpolation::Nearest);
     renderer = qtRenderer;
     leftDown = false;
     rightDown = false;
     Running = true;
     ctrlDown = false;
   }
+
   bool handle_event(KeyEvent kev){
+    std::cout << kev.key << "\n";
     if(kev.key == ESC || kev.key == 'Q'){
       Running = false;
     }
@@ -770,7 +782,7 @@ public:
       leftDown = mclick.pressed;
       first = true;
       if(mclick.pressed){
-	if(!ctrlDown){
+	if(!KeyIsDown(CTRL)){
 
 	renderer->PaintDotScreen(last,color(getCurrentColor()),getCurrentSize());
 	}else{
@@ -794,7 +806,7 @@ public:
     Vec<int,2> pos = vec(-mpos.x,mpos.y);
     Vec<int,2> dp = pos - last;
     if(leftDown){  
-    if(!ctrlDown){
+      if(!KeyIsDown(CTRL)){
 
       renderer->PaintDotScreen(last,color(getCurrentColor()),getCurrentSize());
     }else{
@@ -814,6 +826,23 @@ public:
     renderer->SetWindowSize(vec(s.x,s.y));
   }
 
+  
+  void RenderBrushPreview(){
+    texShader.SetUVState(vec(0.0,0.0),vec(1.0,1.0));
+    Vec<double,2> size = vec<double>(getCurrentSize(),getCurrentSize()) / renderer->ScreenSize.As<double>();
+    Vec<double,2> pos = BrushPosition.As<double>() / renderer->ScreenSize.As<double>() + size / 2.0;
+    
+    texShader.SetPos(-pos[0],1.0 - pos[1]);;
+    
+    texShader.SetSize( size[0],size[1]);
+    SquareBuffer.Bind(0);
+    nullTex.Bind(0);
+    Vec<float,4> col = getCurrentColor();
+    col[3] = 0.9;
+    texShader.SetColor(color(col));
+    VBO::DrawBuffers(DrawMethod::Quads,4);
+    texShader.SetColor(color(255,255,255,255));
+  }
 };
 
 void writeQuadTreeState(QuadTree * qt, ostream & str){
@@ -851,8 +880,8 @@ QuadTree * loadQuadtreeState(istream & str){
   return tree;
 }
 
-#define SCREENWIDTH 1024
-#define SCREENHEIGHT 1024
+#define SCREENWIDTH 700
+#define SCREENHEIGHT 512
 #include<fstream>
 int test_main(){
   Texture2DShader texShader;
@@ -871,8 +900,9 @@ int test_main(){
 			1.0,0.0,
 			1.0,1.0,
 			0.0,1.0};
-  QuadtreeRenderer qtr(qt,VBO(squaredata,4,2,VBODrawType::Static),texShader,vec(SCREENWIDTH,SCREENHEIGHT));
-  SimpleEvents sev(&qtr);
+  VBO SquareBuffer(squaredata,4,2,VBODrawType::Static);
+  QuadtreeRenderer qtr(qt,SquareBuffer,texShader,vec(SCREENWIDTH,SCREENHEIGHT));
+  SimpleEvents sev(&qtr,texShader,SquareBuffer);
   key_event_handler.register_listener(&sev);
   mouse_click_handler.register_listener(&sev);
   mouse_move_spawner.register_listener(&sev);
@@ -884,13 +914,15 @@ int test_main(){
     StopWatch swatch;
     swatch.Reset();
     swatch.Start();
-    if(qtr.Change){
+    //if(qtr.Change){
       FrameBuffer::screenBuffer.Clear();
       qtr.Render();
-    }
+      //}
+    sev.RenderBrushPreview();
+    Sleep(0.01);
+
     SwapBuffers();
     
-    Sleep(0.01);
     
   }
   fstr.open("test.save", ios::out | ios::trunc);

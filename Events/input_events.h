@@ -83,4 +83,5 @@ extern "C"{
   mouse_position get_mouse_position();
   void SetMousePosition(int x, int y);
   void init_events();
+  bool KeyIsDown(int key);
 }

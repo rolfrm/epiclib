@@ -15,7 +15,7 @@ Fl_Color_Chooser * c = NULL;
 Fl_Slider * fs = NULL;
 Fl_Text_Display * td = NULL;
 Vec<float,4> getCurrentColor(){
-	return vec<float>(c->r(),c->g(),c->b(),1.0);
+  return vec<float>(c->r(),c->g(),c->b(),1.0);
 }
 #include <iostream>
 #include <sstream>

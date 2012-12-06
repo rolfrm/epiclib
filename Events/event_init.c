@@ -55,6 +55,11 @@ void GLFWCALL mouse_move_callback(int x, int y){
 }
 
 extern "C"{
+
+  bool KeyIsDown(int key){
+    return glfwGetKey( key);
+  }
+
 void init_events()
 {
   last_wheel_pos = glfwGetMouseWheel();
