@@ -32,13 +32,13 @@ Color col(Vec<unsigned char,4> colors){
 
 /*Color color(unsigned char r, unsigned char g, unsigned char b, unsigned char a){
   return vec( ((float) r) / 255 ,((float) g) / 255, ((float) b) / 255, ((float) a) / 255);
-}
+  }
 
-Color color(Vec<float,4> f){
+  Color color(Vec<float,4> f){
   return f;
-}
+  }
 
-Color col(Vec<unsigned char,4> colors){
+  Color col(Vec<unsigned char,4> colors){
   return color(colors[0],colors[1],colors[2],colors[3]);
   } */
 
@@ -170,7 +170,7 @@ void genQuadTreeRec(QuadTree * qt, int lv){
   case 2:
     qt->Data = color(vec(0.5f,0.2f,1.0f,1.0f));break;
   }
- if(lv == 0){
+  if(lv == 0){
     return;
   }
   for(int i = 1;i < 4;i++){
@@ -225,7 +225,7 @@ bool RenderQuadToImage(QuadTree * qt, unsigned int * bytes, int width, int heigh
   
   if(p[0] + s < 0|| p[1] + s < 0 || p[0] >= width || p[1] >= height){
     return false;
-    }
+  }
   if(s == 1 || !qt->HasChildren()){
     unsigned int color = colorVecToUint(qt->Data);
     if(color == 0){
@@ -457,13 +457,17 @@ public:
   }
   map<TextureNode *, int> texturesInUse;
   void Render(){
+
+    Vec<double,2> savedP = LocalP;
+    double savedZoom = Zoom;
+
     renderit += 1;
     Change = false;
-    Vec<double,2> chunkScreenSize = vec<double>(chunkSize,chunkSize) / ScreenSize.As<double>()*Zoom;
+    Vec<double,2> chunkScreenSize = vec<double>(chunkSize,chunkSize) / ScreenSize.As<double>()*savedZoom;
     int nRenders = 0;
-    Vec<double,2> chunkScale = LocalP / chunkSize;
+    Vec<double,2> chunkScale = savedP / chunkSize;
     Vec<int,2> start = Floor(chunkScale).As<int>();
-    Vec<int,2> end = (start.As<double>() + ScreenSize.As<double>() / (double)chunkSize / Zoom ).As<int>() + 1;
+    Vec<int,2> end = (start.As<double>() + ScreenSize.As<double>() / (double)chunkSize / savedZoom ).As<int>() + 1;
     Vec<double,2> offset = (chunkScale - start.As<double>());
     texShader.SetSize(chunkScreenSize[0],chunkScreenSize[1]);
     SquareBuffer.Bind(0);
@@ -473,32 +477,34 @@ public:
 	Vec<int,2> tpos = vec<int>(x,y)*chunkSize;
 	TextureNode * imgNode = renderTree->relative_node(vec(x,y),true);
 	Texture tex = imgNode->Data;
-	if(!tex.HasData() && nRenders++ < 20){
+	if(!tex.HasData()){// && nRenders++ < 20){
 	  bool ok = RenderQuadtreeToImage(origin,byteBuffer,chunkSize,chunkSize, tpos.As<int>());
 	  if(ok){
 	    tex = Texture(chunkSize,chunkSize,byteBuffer,Interpolation::Linear,TextureWrap::ClampToEdge);
 	    fill(byteBuffer,byteBuffer + chunkSize*chunkSize,0);
 	    imgNode->Data = tex;
-	  }else{
-	    nRenders--;
-	  }
+	  }/*else{
+	     nRenders--;
+	     }*/
 	}
-	if(nRenders >= 20){
+	/*
+	  if(nRenders >= 20){
 	  Change = true;
-	}
+	  }*/
 	Vec<double,2> objPos =vec((x - chunkScale[0])*chunkScreenSize[0] , (y - chunkScale[1])*chunkScreenSize[1]);
 	bool uvstateChanged = false;
 	if(!tex.HasData()){
 	  //try to fetch texture from different layer options: go down and render 2x2 or go up and render a chunk(prefered)
-	  if(imgNode->parent->Data.HasData()){
+	  /*if(imgNode->parent->Data.HasData()){
 	    int idx = imgNode->idx;
 	    tex = imgNode->parent->Data;
 	    texturesInUse[imgNode->parent] = renderit;
 	    texShader.SetUVState(vec<double>(idx & 1, idx >> 1) / 2.0,vec(0.5,0.5));
 	    uvstateChanged = true;
-	  }else{
+	    }else{
 	    nullTex.Bind(0);
-	  }
+	    }*/
+	  nullTex.Bind(0);
 	}else{
 	  texturesInUse[imgNode] = renderit;
 	  tex.Bind(0);
@@ -574,9 +580,7 @@ public:
 
   void PaintDotScreen(Vec<int,2> point,Color color, int pxsize){
     Change = true;
-    Vec<double,2> worldPos = ScreenToWorld(point); //* Zoom;
-    QuadTree * end = TraceDown(worldPos);
-    //end->Data = color;
+    Vec<double,2> worldPos = ScreenToWorld(point);
     int cellsize = QuadTreeSize;
     Vec<double,2> rendercell = Floor(worldPos / chunkSize);
     TextureNode * rcell = renderTree->relative_node(rendercell.As<int>(),false);
@@ -602,7 +606,6 @@ public:
 	QuadTree * qn = node->relative_node(vec(i,j),true);
 	qn->DeleteChildren();
 	qn->Data = color;
-	
       }
     }
   }
@@ -733,117 +736,6 @@ Vec<float,4> getCurrentColor();
 void setCurrentColor(Vec<unsigned char,4> color);
 int getCurrentBrushSize();
 int getCurrentSize();
-class SimpleEvents:
-  public EventListener<KeyEvent>,
-  public EventListener<MouseClick>,
-  public EventListener<MouseWheelEvent>,
-  public EventListener<mouse_position>,
-  public EventListener<size>
-{
-public:
-  
-  bool leftDown;
-  bool rightDown;
-  bool ctrlDown;
-  bool first;
-  Vec<int,2> last;
-  vec<int,2> BrushPosition;
-  QuadtreeRenderer * renderer;
-
-  bool Running;
-  Texture2DShader texShader;
-  VBO SquareBuffer;
-  Texture nullTex;
-
-  SimpleEvents(QuadtreeRenderer * qtRenderer,Texture2DShader shader, VBO squareBuffer):
-    texShader(shader),
-    SquareBuffer(squareBuffer)
-  {
-    unsigned int nulltex[] = {0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF,0xFFFFFFFF};
-    nullTex = Texture(2,2,nulltex,Interpolation::Nearest);
-    renderer = qtRenderer;
-    leftDown = false;
-    rightDown = false;
-    Running = true;
-    ctrlDown = false;
-  }
-
-  bool handle_event(KeyEvent kev){
-    std::cout << kev.key << "\n";
-    if(kev.key == ESC || kev.key == 'Q'){
-      Running = false;
-    }
-    if(kev.key == CTRL){
-      ctrlDown = kev.pressed;
-    }
-  }
-  bool handle_event(MouseClick mclick){
-    if(mclick.button == 0){
-      leftDown = mclick.pressed;
-      first = true;
-      if(mclick.pressed){
-	if(!KeyIsDown(CTRL)){
-
-	renderer->PaintDotScreen(last,color(getCurrentColor()),getCurrentSize());
-	}else{
-	  Color col = renderer->sampleColor(last);
-	  setCurrentColor(col);
-	}
-      }else{
-	renderer->finishedPainting();
-      }
-    }
-    if(mclick.button == 1){
-      rightDown = mclick.pressed;
-      
-    }
-  }
-  bool handle_event(MouseWheelEvent mwheel){
-    double zoomAmount = 1.05;
-    renderer->ZoomInAroundScreenPos(mwheel.change > 0? zoomAmount : 1.0 / zoomAmount,last);
-  }
-  bool handle_event(mouse_position mpos){
-    Vec<int,2> pos = vec(-mpos.x,mpos.y);
-    Vec<int,2> dp = pos - last;
-    if(leftDown){  
-      if(!KeyIsDown(CTRL)){
-
-      renderer->PaintDotScreen(last,color(getCurrentColor()),getCurrentSize());
-    }else{
-      Color col = renderer->sampleColor(last);
-      setCurrentColor(col);
-    }
-    }
-
-    if(rightDown){
-      renderer->Move(dp.As<double>());
-    }
-    
-    last = pos;
-    return true;
-  }
-  bool handle_event(size s){
-    renderer->SetWindowSize(vec(s.x,s.y));
-  }
-
-  
-  void RenderBrushPreview(){
-    texShader.SetUVState(vec(0.0,0.0),vec(1.0,1.0));
-    Vec<double,2> size = vec<double>(getCurrentSize(),getCurrentSize()) / renderer->ScreenSize.As<double>();
-    Vec<double,2> pos = BrushPosition.As<double>() / renderer->ScreenSize.As<double>() + size / 2.0;
-    
-    texShader.SetPos(-pos[0],1.0 - pos[1]);;
-    
-    texShader.SetSize( size[0],size[1]);
-    SquareBuffer.Bind(0);
-    nullTex.Bind(0);
-    Vec<float,4> col = getCurrentColor();
-    col[3] = 0.9;
-    texShader.SetColor(color(col));
-    VBO::DrawBuffers(DrawMethod::Quads,4);
-    texShader.SetColor(color(255,255,255,255));
-  }
-};
 
 void writeQuadTreeState(QuadTree * qt, ostream & str){
   std::list<int> stepsUp;
@@ -908,16 +800,16 @@ int test_main(){
   mouse_move_spawner.register_listener(&sev);
   mouse_wheel_event_spawner.register_listener(&sev);
   window_resize_event.register_listener(&sev);
-  qtr.Move(vec(400.0,-25.0));
+  qtr.Move(vec(0.0,0.0));
   int x = 0;
   while(sev.Running){
     StopWatch swatch;
     swatch.Reset();
     swatch.Start();
     //if(qtr.Change){
-      FrameBuffer::screenBuffer.Clear();
-      qtr.Render();
-      //}
+    FrameBuffer::screenBuffer.Clear();
+    qtr.Render();
+    //}
     sev.RenderBrushPreview();
     Sleep(0.01);
 
@@ -934,6 +826,7 @@ int test_main(){
 #include <thread>
 void uimain();
 int main(){
+  init_infinidraw();
   std::thread t(uimain);
   initOpenGL(SCREENWIDTH,SCREENHEIGHT);
   init_events();

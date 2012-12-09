@@ -6,7 +6,7 @@
 #include <FL/Fl_Text_Display.H>
 #include <FL/Fl_Check_Button.H>
 #include "../Math/GenericVector.h"
-
+#include "infinidraw_interface.h"
 
 
 using namespace std;
@@ -29,6 +29,7 @@ Fl_Window * winptr;
 void setCurrentColor(Vec<unsigned char,4> color){
   Vec<float,4> col = color.As<float>() / 255.0;
   c->rgb(col[0],col[1],col[2]);
+  
   Fl::lock();
   Fl::awake();
   winptr->redraw();
@@ -45,6 +46,7 @@ void slider_callback(Fl_Widget * w, void * data){
   double v = fs->value();
   v = pow(2.0,v*10);
   size = v;
+  SetBrushSize(size);
   str << (int)v;
   td->buffer()->text(str.str().c_str());
 }
@@ -56,18 +58,23 @@ void gridRes_callback(Fl_Widget * w, void * data){
   double v = gridRes_ptr->value();
   v = pow(2.0,v*10);
   size = v;
+  SetBrushSize(size);
   str << (int)v;
   gridResText_ptr->buffer()->text(str.str().c_str());
 }
 
+void chooser_callback(Fl_Widget * w, void * data){
+  std::cout << "Chooser callback.." << c->r() << " " << c->g() << " " << c->b() << "\n";
+  SetColor(c->r(),c->g(),c->b(),1.0);
+}
 
-//-------------------------------------------- 
 int uimain() {
 
     Fl_Window win( 400,400,"Testing" );
     winptr = &win;
     win.begin();
     Fl_Color_Chooser chooser(0,0,150,150,"chooser");
+    chooser.callback(chooser_callback);
     Fl_Slider slider(0,160,100,10,"brush size");
     Fl_Slider gridRes(0,240,100,20,"grid res");
     fs = &slider;

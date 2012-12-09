@@ -4,7 +4,7 @@ In this module a fast,generic container for ND maps(by trees) is implemented.
 TODO: Avoid copy paste-code, but almost done
 
 */
-
+#pragma once
 #ifndef NULL
 #define NULL 0
 #endif
