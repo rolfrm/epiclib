@@ -142,5 +142,5 @@ template<class T, int d>
 
 
 typedef Vec<double,3> Vec3d;
-typedef Vec<double,2> vec2d;
+typedef Vec<double,2> Vec2d;
 
